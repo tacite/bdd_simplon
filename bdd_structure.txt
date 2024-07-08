@@ -62,7 +62,7 @@ DoCmd.RunSQL "CREATE TABLE RNCP_Formacode(" & _
 DoCmd.RunSQL "CREATE TABLE RS_Formacode(" & _
    "Code INT," & _
    "Code_1 INT," & _
-   "Code_rs VARCHAR(50) NOT NULL," & _
+   "Code_rs INT NOT NULL," & _
    "Code_formacode INT NOT NULL," & _
    "PRIMARY KEY(Code, Code_1)," & _
    "UNIQUE(Code_rs)," & _
@@ -74,7 +74,7 @@ DoCmd.RunSQL "CREATE TABLE RS_Formacode(" & _
 DoCmd.RunSQL "CREATE TABLE RS_Formation(" & _
    "ID INT," & _
    "Code INT," & _
-   "Code_rs VARCHAR(50) NOT NULL," & _
+   "Code_rs INT NOT NULL," & _
    "ID_formation INT NOT NULL," & _
    "PRIMARY KEY(ID, Code)," & _
    "UNIQUE(Code_rs)," & _

@@ -112,7 +112,7 @@ DoCmd.RunSQL "CREATE TABLE Formation_NSF(" & _
    "ID INT," & _
    "Code VARCHAR(50)," & _
    "ID_formation INT NOT NULL," & _
-   "Code_nsf INT NOT NULL," & _
+   "Code_nsf VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(ID, Code)," & _
    "UNIQUE(ID_formation)," & _
    "UNIQUE(Code_nsf)," & _

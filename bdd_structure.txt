@@ -3,17 +3,18 @@ Sub Create_Tables()
 DoCmd.RunSQL "CREATE TABLE Formation(" & _
    "ID INT," & _
    "Titre VARCHAR(50) NOT NULL," & _
-   "Prix_mini CURRENCY," & _
-   "Prix_max CURRENCY," & _
-   "Handicap LOGICAL," & _
-   "Region VARCHAR(50)," & _
-   "Code_region VARCHAR(50)," & _
    "Date_début DATE," & _
    "Date_fin DATE," & _
    "Duree_jours INT," & _
    "Duree_heure VARCHAR(50)," & _
-   "Niveau_sortie VARCHAR(50)," & _
+   "Region VARCHAR(50)," & _
+   "Code_region VARCHAR(50)," & _
    "Ville VARCHAR(50)," & _
+   "Niveau_sortie VARCHAR(50)," & _
+   "Prix_mini CURRENCY," & _
+   "Prix_max CURRENCY," & _
+   "Handicap LOGICAL," & _
+   "Source_info VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(ID)" & _
 ");"   
 

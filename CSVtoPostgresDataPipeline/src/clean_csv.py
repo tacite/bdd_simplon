@@ -1,14 +1,13 @@
 import pandas as pd
 
-CSV_NAME = "catalogueformation.csv"
-CSV_CLEANED = "data.csv"
+CSV_NAME = "data/catalogueformation.csv"
 
-def main():
+def clean_csv() -> pd.DataFrame:
     # ouverture et verification de l'existance du fichier csv
     try:
         df = pd.read_csv(CSV_NAME, sep=';', low_memory=False)
     except FileNotFoundError:
-        print("File not Found.")
+        print("Le Fichier n'existe pas, verifiez que vous lancez le script dans le bon repertoire")
         exit()
 
     # suppression des lignes qui ont des valeurs nulles aux colonnes 'libelle_nsf_1' et 'nom_region'
@@ -23,8 +22,5 @@ def main():
                 'coderegion_export', 'points_forts', 'siret', 'numero_formation', 'code_rome_1',
                 'code_rome_2', 'code_rome_3', 'code_rome_4', 'code_rome_5'], inplace=True)
     
-    # export du dataframe nettoyé 
-    df.to_csv(CSV_CLEANED, index=False)
-    
-if __name__ == "__main__":
-    main()
+    # on return le datarame traité    
+    return df

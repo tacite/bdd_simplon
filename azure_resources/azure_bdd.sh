@@ -127,9 +127,15 @@ az batch account login \
     --shared-key-auth
 
 # Get ID of the Batch
-NODE_AGENT_SKU_ID=$(az batch pool node-agent-skus list \
+while [ -z "$NODE_AGENT_SKU_ID" ]; do
+    =$(az batch pool node-agent-skus list \
     --query "[?starts_with(id, 'batch.node.ubuntu')].id" \
     --output tsv | head -n 1)
+    if [ -z "$NODE_AGENT_SKU_ID" ]; then
+        echo "Waiting for Batch to be ready..."
+        sleep 50
+    fi
+done
 
 # Create Pool
 az batch pool create \
@@ -148,7 +154,8 @@ az storage blob upload \
     --name simplonscrapy.zip \
     --file simplonscrapy.zip
 
-# Create Data Factory Pipeline
+# Create Data Factory Pipeline in the right directory
+cd ../azure_ressources
 cat << EOF > pipeline.json
 {
   "name": "$PIPELINE_NAME",

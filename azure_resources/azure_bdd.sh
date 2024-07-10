@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # ___VARIABLES___
-
+# Chemin de base
+BASE_DIR=$(pwd)
 # Ressource Group
 RESOURCE_GROUP=RG_SADAHE
 LOCATION=francecentral
@@ -22,140 +23,130 @@ PIPELINE_NAME=sadaheformationspipeline
 BATCH_ACCOUNT_NAME=sadahescrapybatch
 POOL_NAME=sadahescrapypool
 # Scrapy
-SCRAPY_PROJECT_DIR="../simplonscrapy"
+SCRAPY_PROJECT_DIR="$BASE_DIR/../simplonscrapy"
+ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
 
-# Erase .env if exist to renew values
-if [ -f ".env" ]; then
-    rm ".env"
-fi
+# # Erase .env if exist to renew values
+# if [ -f ".env" ]; then
+#     rm ".env"
+# fi
 
-# Create resources group
-az group create \
-    --name $RESOURCE_GROUP \
-    --location $LOCATION
+# # Create resources group
+# az group create \
+#     --name $RESOURCE_GROUP \
+#     --location $LOCATION
 
-echo "___RESSOURCES_GROUP___ finish"
+# echo "___RESSOURCES_GROUP___ finish"
 
-# ___STORAGE___
+# # ___STORAGE___
 
-# Create storage account
-az storage account create \
-    --name $STORAGE_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION \
-    --sku $SKUNAME
+# # Create storage account
+# az storage account create \
+#     --name $STORAGE_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --location $LOCATION \
+#     --sku $SKUNAME
 
-# Get storage key
-STORAGE_KEY=$(az storage account keys list \
-    --resource-group $RESOURCE_GROUP \
-    --account-name $STORAGE_NAME \
-    --query '[0].value' \
-    --output tsv)
+# # Get storage key
+# STORAGE_KEY=$(az storage account keys list \
+#     --resource-group $RESOURCE_GROUP \
+#     --account-name $STORAGE_NAME \
+#     --query '[0].value' \
+#     --output tsv)
 
-# Create storage container
-az storage container create \
-    --name $CONTAINER_NAME \
-    --account-name $STORAGE_NAME \
-    --account-key $STORAGE_KEY
-echo "___STORAGE___ finish"
+# # Create storage container
+# az storage container create \
+#     --name $CONTAINER_NAME \
+#     --account-name $STORAGE_NAME \
+#     --account-key $STORAGE_KEY
+# echo "___STORAGE___ finish"
 
-# ___DATABASE___
+# # ___DATABASE___
 
-# Create flexible server "Development"
-az postgres flexible-server create \
-    --name $SERVER_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION \
-    --admin-password $ADMIN_PASSWORD \
-    --admin-user $ADMIN_USER \
-    --sku-name $SKU_SERVER \
-    --tier Burstable \
-    --version 12 \
-    --database-name $DATABASE_NAME\
+# # Create flexible server "Development"
+# az postgres flexible-server create \
+#     --name $SERVER_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --location $LOCATION \
+#     --admin-password $ADMIN_PASSWORD \
+#     --admin-user $ADMIN_USER \
+#     --sku-name $SKU_SERVER \
+#     --tier Burstable \
+#     --version 12 \
+#     --database-name $DATABASE_NAME\
 
-# Configure connexion parameters
-az postgres flexible-server firewall-rule create \
-    --resource-group $RESOURCE_GROUP \
-    --name $SERVER_NAME \
-    --rule-name AllowAll \
-    --start-ip-address 0.0.0.0 \
-    --end-ip-address 0.0.0.0
+# # Configure connexion parameters
+# az postgres flexible-server firewall-rule create \
+#     --resource-group $RESOURCE_GROUP \
+#     --name $SERVER_NAME \
+#     --rule-name AllowAll \
+#     --start-ip-address 0.0.0.0 \
+#     --end-ip-address 0.0.0.0
 
-# Wait for the PostgreSQL server to be available and retrieve "SERVER_URL="
-while [ -z "$SERVER_URL" ]; do
-    SERVER_URL=$(az postgres flexible-server show \
-        --name $SERVER_NAME \
-        --resource-group $RESOURCE_GROUP \
-        --query 'fullyQualifiedDomainName' \
-        --output tsv)
-    if [ -z "$SERVER_URL" ]; then
-        echo "Waiting for PostgreSQL server to be ready..."
-        sleep 50
-    fi
-done
+# # Wait for the PostgreSQL server to be available and retrieve "SERVER_URL="
+# while [ -z "$SERVER_URL" ]; do
+#     SERVER_URL=$(az postgres flexible-server show \
+#         --name $SERVER_NAME \
+#         --resource-group $RESOURCE_GROUP \
+#         --query 'fullyQualifiedDomainName' \
+#         --output tsv)
+#     if [ -z "$SERVER_URL" ]; then
+#         echo "Waiting for PostgreSQL server to be ready..."
+#         sleep 50
+#     fi
+# done
 
-# Create PostgreSQL database
-az postgres flexible-server db create \
-    --resource-group $RESOURCE_GROUP \
-    --server-name $SERVER_NAME \
-    --database-name $DATABASE_NAME
+# # Create PostgreSQL database
+# az postgres flexible-server db create \
+#     --resource-group $RESOURCE_GROUP \
+#     --server-name $SERVER_NAME \
+#     --database-name $DATABASE_NAME
 
 
-echo "___DATABASE___ finish"
+# echo "___DATABASE___ finish"
 
-# ___DATAFACTORY - PIPELINE___
+# # ___DATAFACTORY - PIPELINE___
 
-# Create Azure Data Factory
-az datafactory create \
-    --resource-group $RESOURCE_GROUP \
-    --name $DATAFACT_NAME \
-    --location $LOCATION
+# # Create Azure Data Factory
+# az datafactory create \
+#     --resource-group $RESOURCE_GROUP \
+#     --name $DATAFACT_NAME \
+#     --location $LOCATION
 
 # Create Azure Batch
-az batch account create \
-    --name $BATCH_ACCOUNT_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION \
-    --storage-account $STORAGE_NAME
+# az batch account create \
+#     --name $BATCH_ACCOUNT_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --location $LOCATION \
+#     --storage-account $STORAGE_NAME
+
+# # Associate Batch and Resource Group
+# az batch account login \
+#     --name $BATCH_ACCOUNT_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --shared-key-auth
+
+# # Create Pool
+# az batch pool create \
+#     --id $POOL_NAME \
+#     --image canonical:0001-com-ubuntu-server-focal:20_04-lts \
+#     --node-agent-sku-id "batch.node.ubuntu 20.04" \
+#     --target-dedicated-nodes 2 \
+#     --vm-size Standard_A1_v2 \
 
 # OK jusque là !
 
-# Associate Batch and Resource Group
-az batch account login \
-    --name $BATCH_ACCOUNT_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --shared-key-auth
-
-# Get ID of the Batch
-while [ -z "$NODE_AGENT_SKU_ID" ]; do
-    =$(az batch pool node-agent-skus list \
-    --query "[?starts_with(id, 'batch.node.ubuntu')].id" \
-    --output tsv | head -n 1)
-    if [ -z "$NODE_AGENT_SKU_ID" ]; then
-        echo "Waiting for Batch to be ready..."
-        sleep 50
-    fi
-done
-
-# Create Pool
-az batch pool create \
-    --id $POOL_NAME \
-    --vm-size Standard_D2_v2 \
-    --target-dedicated-nodes 1 \
-    --image canonical:ubuntuserver:18.04-LTS \
-    --node-agent-sku-id $NODE_AGENT_SKU_ID
-
 # Deploy Scrapy in Blob Container
 cd $SCRAPY_PROJECT_DIR
-zip -r simplonscrapy.zip .
+zip -r $ZIP_FILE .
 az storage blob upload \
     --account-name $STORAGE_NAME \
     --container-name $CONTAINER_NAME \
     --name simplonscrapy.zip \
-    --file simplonscrapy.zip
+    --file $ZIP_FILE
 
-# Create Data Factory Pipeline in the right directory
-cd ../azure_ressources
+# Create Data Factory Pipeline
+cd $BASE_DIR
 cat << EOF > pipeline.json
 {
   "name": "$PIPELINE_NAME",

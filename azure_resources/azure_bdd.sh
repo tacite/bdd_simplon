@@ -134,66 +134,92 @@ ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
 #     --target-dedicated-nodes 2 \
 #     --vm-size Standard_A1_v2 \
 
-# OK jusque là !
+# # Deploy Scrapy in Blob Container
+# cd $SCRAPY_PROJECT_DIR
+# zip -r $ZIP_FILE .
+# az storage blob upload \
+#     --account-name $STORAGE_NAME \
+#     --container-name $CONTAINER_NAME \
+#     --name simplonscrapy.zip \
+#     --file $ZIP_FILE
 
-# Deploy Scrapy in Blob Container
-cd $SCRAPY_PROJECT_DIR
-zip -r $ZIP_FILE .
-az storage blob upload \
-    --account-name $STORAGE_NAME \
-    --container-name $CONTAINER_NAME \
-    --name simplonscrapy.zip \
-    --file $ZIP_FILE
+# # Create Data Factory Pipeline
+# cd $BASE_DIR
+# cat << EOF > pipeline.json
+# {
+#   "name": "$PIPELINE_NAME",
+#   "properties": {
+#     "activities": [
+#       {
+#         "name": "RunScrapySpider",
+#         "type": "ExecutePipeline",
+#         "dependsOn": [],
+#         "userProperties": [],
+#         "linkedServiceName": {
+#           "referenceName": "AzureBatchLinkedService",
+#           "type": "LinkedServiceReference"
+#         },
+#         "typeProperties": {
+#           "pipelineReference": {
+#             "referenceName": "ExecuteScrapySpider",
+#             "type": "PipelineReference"
+#           }
+#         },
+#         "policy": {
+#           "timeout": "7.00:00:00",
+#           "retry": 3,
+#           "retryIntervalInSeconds": 30,
+#           "secureOutput": false,
+#           "secureInput": false
+#         }
+#       }
+#     ]
+#   }
+# }
+# EOF
 
-# Create Data Factory Pipeline
-cd $BASE_DIR
-cat << EOF > pipeline.json
-{
-  "name": "$PIPELINE_NAME",
-  "properties": {
-    "activities": [
-      {
-        "name": "RunScrapySpider",
-        "type": "ExecutePipeline",
-        "dependsOn": [],
-        "userProperties": [],
-        "linkedServiceName": {
-          "referenceName": "AzureBatchLinkedService",
-          "type": "LinkedServiceReference"
-        },
-        "typeProperties": {
-          "pipelineReference": {
-            "referenceName": "ExecuteScrapySpider",
-            "type": "PipelineReference"
-          }
-        },
-        "policy": {
-          "timeout": "7.00:00:00",
-          "retry": 3,
-          "retryIntervalInSeconds": 30,
-          "secureOutput": false,
-          "secureInput": false
-        }
-      }
-    ]
-  }
-}
-EOF
+# Pipelinejsonpath="pipeline.json"
 
-az datafactory pipeline create \
-    --resource-group $RESOURCE_GROUP \
-    --factory-name $DATAFACT_NAME \
-    --name $PIPELINE_NAME \
-    --pipeline-definition @pipeline.json
+# # Attention jq doit être installé sur votre machine
+# PipelineContent=$(cat $Pipelinejsonpath | jq -c '.')
+
+# az datafactory pipeline create \
+#     --resource-group $RESOURCE_GROUP \
+#     --factory-name $DATAFACT_NAME \
+#     --name $PIPELINE_NAME \
+#     --pipeline "$PipelineContent" \
 
 # Plan Pipeline every week
 az datafactory trigger create \
     --resource-group $RESOURCE_GROUP \
     --factory-name $DATAFACT_NAME \
     --name WeeklyTrigger \
-    --type ScheduleTrigger \
-    --pipeline-name $PIPELINE_NAME \
-    --recurrence-expression "0 0 * * 1"
+    --properties '{
+      "type": "ScheduleTrigger",
+      "pipelines": [
+        {
+          "pipelineReference": {
+            "referenceName": "'"${PIPELINE_NAME}"'"
+          }
+        }
+      ],
+      "typeProperties": {
+        "recurrence": {
+          "frequency": "Week",
+          "interval": 1,
+          "startTime": "2023-07-01T00:00:00Z"
+        }
+      }
+    }'
+
+
+# OK jusque là ! Reste à runner le trigger donc voir sur le dossier scrapping _auto--main la partie start
+
+# # Démarrer le trigger
+# az datafactory trigger start \
+#     --resource-group $RESOURCE_GROUP \
+#     --factory-name $DATAFACT_NAME \
+#     --name $TriggerName
 
 echo "___DATAFACTORY-PIPELINE___ finish"
 

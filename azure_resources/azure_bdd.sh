@@ -6,24 +6,23 @@
 RESOURCE_GROUP=RG_SADAHE
 LOCATION=francecentral
 # Flexible server - Database
-SERVER_NAME=formationserver
+SERVER_NAME=sadaheformationserver
 SKU_SERVER=Standard_B1ms
 ADMIN_PASSWORD=sad@he
 ADMIN_USER=adminsadahe
-DATABASE_NAME=formations
+DATABASE_NAME=sadaheformations
 # Storage
 STORAGE_NAME=formationsadahestorage
 SKUNAME=Standard_LRS
-CONTAINER_NAME=formationscontainer
+CONTAINER_NAME=sadaheformationscontainer
 # Datafactory - pipeline
-DATAFACT_NAME=formationsdatatfact
-PIPELINE_NAME=formationspipeline
+DATAFACT_NAME=sadaheformationsdatatfact
+PIPELINE_NAME=sadaheformationspipeline
 # Batch - pool
-BATCH_ACCOUNT_NAME=scrapybatch
-BATCH_RESOURCE_GROUP=RG_BATCH
-POOL_NAME=scrapypool
+BATCH_ACCOUNT_NAME=sadahescrapybatch
+POOL_NAME=sadahescrapypool
 # Scrapy
-SCRAPY_PROJECT_DIR="./simplonscrapy"
+SCRAPY_PROJECT_DIR="../simplonscrapy"
 
 # Erase .env if exist to renew values
 if [ -f ".env" ]; then
@@ -127,12 +126,18 @@ az batch account login \
     --resource-group $RESOURCE_GROUP \
     --shared-key-auth
 
+# Get ID of the Batch
+NODE_AGENT_SKU_ID=$(az batch pool node-agent-skus list \
+    --query "[?starts_with(id, 'batch.node.ubuntu')].id" \
+    --output tsv | head -n 1)
+
 # Create Pool
 az batch pool create \
     --id $POOL_NAME \
     --vm-size Standard_D2_v2 \
     --target-dedicated-nodes 1 \
-    --image canonical:ubuntuserver:18.04-LTS
+    --image canonical:ubuntuserver:18.04-LTS \
+    --node-agent-sku-id $NODE_AGENT_SKU_ID
 
 # Deploy Scrapy in Blob Container
 cd $SCRAPY_PROJECT_DIR
@@ -218,7 +223,7 @@ DATAFACT_NAME=$DATAFACT_NAME
 PIPELINE_NAME=$PIPELINE_NAME
 # ___BATCH - POOL___
 BATCH_ACCOUNT_NAME=$BATCH_ACCOUNT_NAME
-BATCH_RESOURCE_GROUP=$BATCH_RESOURCE_GROUP
+NODE_AGENT_SKU_ID=$NODE_AGENT_SKU_ID
 POOL_NAME=$POOL_NAME
 EOT
 

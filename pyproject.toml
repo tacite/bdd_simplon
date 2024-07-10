@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 pandas = "^2.2.2"
+scrapy = "^2.11.2"
 
 
 [build-system]

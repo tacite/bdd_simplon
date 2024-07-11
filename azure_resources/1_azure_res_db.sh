@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # ___VARIABLES___
+
 # Chemin de base
 BASE_DIR=$(pwd)
 # Ressource Group
@@ -61,6 +62,7 @@ az storage container create \
     --name $CONTAINER_NAME \
     --account-name $STORAGE_NAME \
     --account-key $STORAGE_KEY
+
 echo "___STORAGE___ finish"
 
 # ___DATABASE___
@@ -116,7 +118,6 @@ az postgres flexible-server db create \
     --server-name $SERVER_NAME \
     --database-name $DATABASE_NAME
 
-
 echo "___DATABASE___ finish"
 
 # ___DATAFACTORY - PIPELINE___
@@ -126,35 +127,6 @@ az datafactory create \
     --resource-group $RESOURCE_GROUP \
     --name $DATAFACT_NAME \
     --location $LOCATION
-    
-# Create Linked Service for Azure Storage
-az datafactory linked-service create \
-    --resource-group $RESOURCE_GROUP \
-    --factory-name $DATAFACT_NAME \
-    --name AzureStorageLinkedService \
-    --properties '{
-      "type": "AzureBlobStorage",
-      "typeProperties": {
-        "connectionString": "DefaultEndpointsProtocol=https;AccountName='$STORAGE_NAME';AccountKey='$STORAGE_KEY';EndpointSuffix=core.windows.net"
-      }
-    }'
-
-# Create Linked Service for Azure Batch
-az datafactory linked-service create \
-    --resource-group $RESOURCE_GROUP \
-    --factory-name $DATAFACT_NAME \
-    --name AzureBatchLinkedService \
-    --properties '{
-      "type": "AzureBatch",
-      "typeProperties": {
-        "batchUri": "https://'$BATCH_ACCOUNT_NAME'.francecentral.batch.azure.com",
-        "poolName": "'"${POOL_NAME}"'",
-        "linkedServiceName": {
-          "referenceName": "AzureStorageLinkedService",
-          "type": "LinkedServiceReference"
-        }
-      }
-    }'
 
 # Create Azure Batch
 az batch account create \
@@ -174,7 +146,7 @@ az batch pool create \
     --id $POOL_NAME \
     --image canonical:0001-com-ubuntu-server-focal:20_04-lts \
     --node-agent-sku-id "batch.node.ubuntu 20.04" \
-    --target-dedicated-nodes 2 \
+    --target-dedicated-nodes 1 \
     --vm-size Standard_A1_v2 \
 
 # Deploy Scrapy in Blob Container
@@ -187,6 +159,36 @@ az storage blob upload \
     --file $ZIP_FILE \
     --overwrite
 
+# Create Linked Service for Azure Storage
+az datafactory linked-service create \
+    --resource-group $RESOURCE_GROUP \
+    --factory-name $DATAFACT_NAME \
+    --name AzureStorageLinkedService \
+    --properties '{
+      "type": "AzureBlobStorage",
+      "typeProperties": {
+        "connectionString": "DefaultEndpointsProtocol=https;AccountName='$STORAGE_NAME';AccountKey='$STORAGE_KEY';EndpointSuffix=core.windows.net"
+      }
+    }'
+
+# Create Azure Batch Linked Service for Data Factory
+az datafactory linked-service create \
+    --resource-group $RESOURCE_GROUP \
+    --factory-name $DATAFACT_NAME \
+    --name AzureBatchLinkedService \
+    --properties '{
+        "type": "AzureBatch",
+        "typeProperties": {
+            "accountName": "'"$BATCH_ACCOUNT_NAME"'",
+            "batchUri": "'"https://$BATCH_ACCOUNT_NAME.$LOCATION.batch.azure.com"'",
+            "poolName": "'"$POOL_NAME"'",
+            "linkedServiceName": {
+                "referenceName": "AzureStorageLinkedService",
+                "type": "LinkedServiceReference"
+            }
+        }
+    }'
+  
 # Create Data Factory Pipeline
 cd $BASE_DIR
 cat << EOF > pipeline.json
@@ -257,7 +259,7 @@ az datafactory trigger create \
       }
     }'
 
-# Démarrer le trigger
+# Start Trigger
 az datafactory trigger start \
     --resource-group $RESOURCE_GROUP \
     --factory-name $DATAFACT_NAME \
@@ -270,32 +272,40 @@ az datafactory pipeline create-run \
     --pipeline-name $PIPELINE_NAME
 echo "___DATAFACTORY-PIPELINE___ finish"
 
-# Save variables in .env fils
+# Save variables in .env file
 cat <<EOT > .env
-# # ___RESSOURCE_GROUP___
-# RESOURCE_GROUP=$RESOURCE_GROUP
-# LOCATION=$LOCATION
-# # ___DATABASE___
-# PGHOST=$SERVER_URL
-# PGUSER=$ADMIN_USER
-# PGPORT=5432
-# PGDATABASE=$DATABASE_NAME
-# PGPASSWORD=$ADMIN_PASSWORD
-# DATABASE_URL=postgresql+psycopg2://$ADMIN_USER:$ADMIN_PASSWORD@$SERVER_URL:5432/$DATABASE_NAME
-# SKU_SERVER=$SKU_SERVER
-# SERVER_NAME=$SERVER_NAME
-# # ___STORAGE___
-# STORAGE_NAME=$STORAGE_NAME
-# SKUNAME=$SKUNAME
-# STORAGE_KEY=$STORAGE_KEY
-# CONTAINER_NAME=$CONTAINER_NAME
+# Chemin de base
+BASE_DIR=$(pwd)
+# ___RESSOURCE_GROUP___
+RESOURCE_GROUP=$RESOURCE_GROUP
+LOCATION=$LOCATION
+# ___DATABASE___
+PGHOST=$SERVER_URL
+PGUSER=$ADMIN_USER
+PGPORT=5432
+PGDATABASE=$DATABASE_NAME
+PGPASSWORD=$ADMIN_PASSWORD
+DATABASE_URL="postgresql+psycopg2://$ADMIN_USER:$ADMIN_PASSWORD@$SERVER_URL:5432/$DATABASE_NAME"
+SKU_SERVER=$SKU_SERVER
+SERVER_NAME=$SERVER_NAME
+# ___STORAGE___
+STORAGE_NAME=$STORAGE_NAME
+SKUNAME=$SKUNAME
+STORAGE_KEY="$STORAGE_KEY"
+CONTAINER_NAME=$CONTAINER_NAME
 # ___DATAFACTORY - PIPELINE___
 DATAFACT_NAME=$DATAFACT_NAME
 PIPELINE_NAME=$PIPELINE_NAME
 # ___BATCH - POOL___
 BATCH_ACCOUNT_NAME=$BATCH_ACCOUNT_NAME
+BATCH_URL="$BATCH_ACCOUNT_NAME.$LOCATION.batch.azure.com"
 NODE_AGENT_SKU_ID=$NODE_AGENT_SKU_ID
 POOL_NAME=$POOL_NAME
+# ____SCRAPY___
+SCRAPY_PROJECT_DIR="$BASE_DIR/../simplonscrapy"
+ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
+# ___TRIGGER___
+TRIGGER_NAME=WeeklyTrigger
 EOT
 
 echo ".env file created successfully with the following content:"

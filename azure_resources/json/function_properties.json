@@ -1,0 +1,12 @@
+{
+    "annotations": [],
+    "type": "AzureFunction",
+    "typeProperties": {
+        "functionAppUrl": "https://allocinefunctionapp.azurewebsites.net",
+        "authentication": "Anonymous",
+        "functionKey": {
+            "type": "SecureString",
+            "value": "$FUNCTION_KEY"
+        }
+    }   
+}

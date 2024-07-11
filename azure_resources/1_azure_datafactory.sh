@@ -21,7 +21,8 @@ CONTAINER_NAME=sadaheformationscontainer
 DATAFACT_NAME=sadaheformationsdatatfact
 PIPELINE_NAME=sadaheformationspipeline
 # Batch - pool
-BATCH_ACCOUNT_NAME=sadahescrapybatch
+BATCH_RESOURCE_GROUP=RG_SADAHE
+BATCH_ACCOUNT_NAME=simplonbatchaccount
 POOL_NAME=sadahescrapypool
 # Scrapy
 SCRAPY_PROJECT_DIR="$BASE_DIR/../simplonscrapy"
@@ -34,21 +35,21 @@ if [ -f ".env" ]; then
     rm ".env"
 fi
 
-# Create resources group
-az group create \
-    --name $RESOURCE_GROUP \
-    --location $LOCATION
+# # Create resources group
+# az group create \
+#     --name $RESOURCE_GROUP \
+#     --location $LOCATION
 
-echo "___RESSOURCES_GROUP___ finish"
+# echo "___RESSOURCES_GROUP___ finish"
 
-# ___STORAGE___
+# # ___STORAGE___
 
-# Create storage account
-az storage account create \
-    --name $STORAGE_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION \
-    --sku $SKUNAME
+# # Create storage account
+# az storage account create \
+#     --name $STORAGE_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --location $LOCATION \
+#     --sku $SKUNAME
 
 # Get storage key
 STORAGE_KEY=$(az storage account keys list \
@@ -57,35 +58,35 @@ STORAGE_KEY=$(az storage account keys list \
     --query '[0].value' \
     --output tsv)
 
-# Create storage container
-az storage container create \
-    --name $CONTAINER_NAME \
-    --account-name $STORAGE_NAME \
-    --account-key $STORAGE_KEY
+# # Create storage container
+# az storage container create \
+#     --name $CONTAINER_NAME \
+#     --account-name $STORAGE_NAME \
+#     --account-key $STORAGE_KEY
 
-echo "___STORAGE___ finish"
+# echo "___STORAGE___ finish"
 
-# ___DATABASE___
+# # ___DATABASE___
 
-# Create flexible server "Development"
-az postgres flexible-server create \
-    --name $SERVER_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION \
-    --admin-password $ADMIN_PASSWORD \
-    --admin-user $ADMIN_USER \
-    --sku-name $SKU_SERVER \
-    --tier Burstable \
-    --version 12 \
-    --database-name $DATABASE_NAME\
+# # Create flexible server "Development"
+# az postgres flexible-server create \
+#     --name $SERVER_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --location $LOCATION \
+#     --admin-password $ADMIN_PASSWORD \
+#     --admin-user $ADMIN_USER \
+#     --sku-name $SKU_SERVER \
+#     --tier Burstable \
+#     --version 12 \
+#     --database-name $DATABASE_NAME\
 
-# Configure connexion parameters
-az postgres flexible-server firewall-rule create \
-    --resource-group $RESOURCE_GROUP \
-    --name $SERVER_NAME \
-    --rule-name AllowAll \
-    --start-ip-address 0.0.0.0 \
-    --end-ip-address 0.0.0.0
+# # Configure connexion parameters
+# az postgres flexible-server firewall-rule create \
+#     --resource-group $RESOURCE_GROUP \
+#     --name $SERVER_NAME \
+#     --rule-name AllowAll \
+#     --start-ip-address 0.0.0.0 \
+#     --end-ip-address 0.0.0.0
 
 # Wait for the PostgreSQL server to be available and retrieve "SERVER_URL="
 while [ -z "$SERVER_URL" ]; do
@@ -110,15 +111,15 @@ while [ -z "$SERVER_URL" ]; do
     fi
 done
 
-echo "PostgreSQL server is ready with URL: $SERVER_URL"
+# echo "PostgreSQL server is ready with URL: $SERVER_URL"
 
-# Create PostgreSQL database
-az postgres flexible-server db create \
-    --resource-group $RESOURCE_GROUP \
-    --server-name $SERVER_NAME \
-    --database-name $DATABASE_NAME
+# # Create PostgreSQL database
+# az postgres flexible-server db create \
+#     --resource-group $RESOURCE_GROUP \
+#     --server-name $SERVER_NAME \
+#     --database-name $DATABASE_NAME
 
-echo "___DATABASE___ finish"
+# echo "___DATABASE___ finish"
 
 # ___DATAFACTORY - PIPELINE___
 
@@ -128,17 +129,17 @@ az datafactory create \
     --name $DATAFACT_NAME \
     --location $LOCATION
 
-# Create Azure Batch
-az batch account create \
-    --name $BATCH_ACCOUNT_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION \
-    --storage-account $STORAGE_NAME
+# # Create Azure Batch
+# az batch account create \
+#     --name $BATCH_ACCOUNT_NAME \
+#     --resource-group $RESOURCE_GROUP \
+#     --location $LOCATION \
+#     --storage-account $STORAGE_NAME
 
 # Associate Batch and Resource Group
 az batch account login \
     --name $BATCH_ACCOUNT_NAME \
-    --resource-group $RESOURCE_GROUP \
+    --resource-group $BATCH_RESOURCE_GROUP \
     --shared-key-auth
 
 # Create Pool
@@ -149,15 +150,15 @@ az batch pool create \
     --target-dedicated-nodes 1 \
     --vm-size Standard_A1_v2 \
 
-# Deploy Scrapy in Blob Container
-cd $SCRAPY_PROJECT_DIR
-zip -r $ZIP_FILE .
-az storage blob upload \
-    --account-name $STORAGE_NAME \
-    --container-name $CONTAINER_NAME \
-    --name simplonscrapy.zip \
-    --file $ZIP_FILE \
-    --overwrite
+# # Deploy Scrapy in Blob Container
+# cd $SCRAPY_PROJECT_DIR
+# zip -r $ZIP_FILE .
+# az storage blob upload \
+#     --account-name $STORAGE_NAME \
+#     --container-name $CONTAINER_NAME \
+#     --name simplonscrapy.zip \
+#     --file $ZIP_FILE \
+#     --overwrite
 
 # Create Linked Service for Azure Storage
 az datafactory linked-service create \
@@ -297,6 +298,7 @@ CONTAINER_NAME=$CONTAINER_NAME
 DATAFACT_NAME=$DATAFACT_NAME
 PIPELINE_NAME=$PIPELINE_NAME
 # ___BATCH - POOL___
+BATCH_RESOURCE_GROUP=$BATCH_RESOURCE_GROUP
 BATCH_ACCOUNT_NAME=$BATCH_ACCOUNT_NAME
 BATCH_URL="$BATCH_ACCOUNT_NAME.$LOCATION.batch.azure.com"
 NODE_AGENT_SKU_ID=$NODE_AGENT_SKU_ID

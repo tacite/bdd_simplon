@@ -1,0 +1,22 @@
+{
+    "annotations": [],
+    "runtimeState": "Started",
+    "pipelines": [
+        {
+            "pipelineReference": {
+                "referenceName": "PythonPipeline",
+                "type": "PipelineReference"
+            },
+            "parameters": {}
+        }
+    ],
+    "type": "ScheduleTrigger",
+    "typeProperties": {
+        "recurrence": {
+            "frequency": "Minute",
+            "interval": 15,
+            "startTime": "2024-06-26T10:09:00",
+            "timeZone": "Romance Standard Time"
+        }
+    }
+}

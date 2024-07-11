@@ -1,0 +1,31 @@
+{
+    "activities": [
+        {
+            "name": "Azure Function1",
+            "type": "AzureFunctionActivity",
+            "dependsOn": [],
+            "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureOutput": false,
+                "secureInput": false
+            },
+            "userProperties": [],
+            "typeProperties": {
+                "functionName": "myhttptrigger",
+                "headers": {},
+                "method": "GET"
+            },
+            "linkedServiceName": {
+                "referenceName": "FunctionLinkedService",
+                "type": "LinkedServiceReference"
+            }
+        }
+    ],
+    "policy": {
+        "elapsedTimeMetric": {}
+    },
+    "annotations": [],
+    "lastPublishTime": "2024-07-01T15:17:15Z"
+}

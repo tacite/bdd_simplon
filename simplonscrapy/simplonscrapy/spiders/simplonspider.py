@@ -1,8 +1,9 @@
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 import scrapy
+from scrapy.crawler import CrawlerProcess
 
-# 1er spider :
+# 1er spider:
 class SimplonspiderSpider(CrawlSpider):
     name = "simplonspider"
     allowed_domains = ["simplon.co"]
@@ -91,9 +92,13 @@ class Simplonspider2Spider(CrawlSpider):
 
         # Récupérer la région de la formation
         item['region'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "location_on")]/following-sibling::text()').get()
+        if item['region']:
+            item['region'] = item['region'].replace('\n', '').strip()
 
         # Récupérer la date de début de la formation
         item['start_date'] = response.xpath('//div[@class="card-session-info calendar"]/i[contains(text(), "event")]/following-sibling::text()').get()
+        if item['start_date']:
+            item['start_date'] = item['start_date'].replace('\n', '').strip()
 
         # Récupérer le niveau de sortie de la formation
         item['niveau_sortie'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "school")]/following-sibling::text()').get()
@@ -104,6 +109,66 @@ class Simplonspider2Spider(CrawlSpider):
         item['duree'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "hourglass_empty")]/following-sibling::text()').get()
         if item['duree']:
             item['duree'] = item['duree'].strip()
+
+        # Récupérer la type deformation
+        item['type_formation'] = response.xpath('//div[@class="card-content-tag"]/a/text()').get()
+        if item['type_formation']:
+            item['type_formation'] = item['type_formation'].strip()
+
+        # Récupérer le lieu de la formation
+        item['lieu_formation'] = response.xpath('//div[@class="card-content"]/text()[normalize-space()]').get()
+        if item['lieu_formation']:
+            item['lieu_formation'] = item['lieu_formation'].strip()
+
+        yield item
+##########################################################################
+#3ème spider:
+class SimplonCrawlSpider(CrawlSpider):
+    name = "simplonspider3"
+    allowed_domains = ["simplon.co", "francecompetences.fr"]
+    start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
+
+
+    rules = (
+        Rule(LinkExtractor(allow=('/formation/',), restrict_xpaths='//a[contains(text(),"Découvrez la formation")]'), callback='parse_formation', follow=True),
+    )
+
+    def parse_formation(self, response):
+        item = {}
+
+        # Récupérer le titre de la formation
+        item['title'] = response.xpath('//h1/text()').get().strip()
+
+        # Récupérer l'identifiant RNCP
+        rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
+        if rncp_href:
+            rncp_href = response.urljoin(rncp_href)
+            request = scrapy.Request(rncp_href, callback=self.parse_france_competences)
+            request.meta['item'] = item
+            yield request
+        else:
+            item['rncp'] = None
+            item['formacodes'] = None
+            item['nsf_codes'] = None
+            yield item
+
+    def parse_france_competences(self, response):
+        item = response.meta['item']
+
+        # Extraire des informations supplémentaires depuis la page de France Compétences
+        rncp = response.xpath('//span[contains(text(),"RNCP")]/following-sibling::text()').get().strip()
+        formacodes = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
+        nsf_codes = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
+        
+        # Nettoyer les valeurs de formacodes en supprimant les ":"
+        formacodes_cleaned = [fc.replace(':', '').strip() for fc in formacodes]
+        item['formacodes'] = ', '.join(formacodes_cleaned)
+
+        # Nettoyer les valeurs de nsf_codes en supprimant les ":"
+        nsf_codes_cleaned = [nsf.replace(':', '').strip() for nsf in nsf_codes]
+        item['nsf_codes'] = ', '.join(nsf_codes_cleaned)
+
+        item['rncp'] = rncp
 
         yield item
 

@@ -25,6 +25,8 @@ POOL_NAME=sadahescrapypool
 # Scrapy
 SCRAPY_PROJECT_DIR="$BASE_DIR/../simplonscrapy"
 ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
+# Trigger
+TRIGGER_NAME=WeeklyTrigger
 
 # # Erase .env if exist to renew values
 # if [ -f ".env" ]; then
@@ -85,16 +87,28 @@ ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
 
 # # Wait for the PostgreSQL server to be available and retrieve "SERVER_URL="
 # while [ -z "$SERVER_URL" ]; do
-#     SERVER_URL=$(az postgres flexible-server show \
+#     # Check server status
+#     SERVER_STATE=$(az postgres flexible-server show \
 #         --name $SERVER_NAME \
 #         --resource-group $RESOURCE_GROUP \
-#         --query 'fullyQualifiedDomainName' \
+#         --query 'state' \
 #         --output tsv)
+    
+#     if [ "$SERVER_STATE" == "Ready" ]; then
+#         SERVER_URL=$(az postgres flexible-server show \
+#             --name $SERVER_NAME \
+#             --resource-group $RESOURCE_GROUP \
+#             --query 'fullyQualifiedDomainName' \
+#             --output tsv)
+#     fi
+
 #     if [ -z "$SERVER_URL" ]; then
-#         echo "Waiting for PostgreSQL server to be ready..."
+#         echo "Waiting for PostgreSQL server to be ready... Current state: $SERVER_STATE"
 #         sleep 50
 #     fi
 # done
+
+# echo "PostgreSQL server is ready with URL: $SERVER_URL"
 
 # # Create PostgreSQL database
 # az postgres flexible-server db create \
@@ -105,15 +119,15 @@ ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
 
 # echo "___DATABASE___ finish"
 
-# # ___DATAFACTORY - PIPELINE___
+# ___DATAFACTORY - PIPELINE___
 
-# # Create Azure Data Factory
-# az datafactory create \
-#     --resource-group $RESOURCE_GROUP \
-#     --name $DATAFACT_NAME \
-#     --location $LOCATION
+# Create Azure Data Factory
+az datafactory create \
+    --resource-group $RESOURCE_GROUP \
+    --name $DATAFACT_NAME \
+    --location $LOCATION
 
-# Create Azure Batch
+# # Create Azure Batch
 # az batch account create \
 #     --name $BATCH_ACCOUNT_NAME \
 #     --resource-group $RESOURCE_GROUP \
@@ -141,65 +155,67 @@ ZIP_FILE="$BASE_DIR/simplonscrapy.zip"
 #     --account-name $STORAGE_NAME \
 #     --container-name $CONTAINER_NAME \
 #     --name simplonscrapy.zip \
-#     --file $ZIP_FILE
+#     --file $ZIP_FILE \
+#     --overwrite
 
-# # Create Data Factory Pipeline
-# cd $BASE_DIR
-# cat << EOF > pipeline.json
-# {
-#   "name": "$PIPELINE_NAME",
-#   "properties": {
-#     "activities": [
-#       {
-#         "name": "RunScrapySpider",
-#         "type": "ExecutePipeline",
-#         "dependsOn": [],
-#         "userProperties": [],
-#         "linkedServiceName": {
-#           "referenceName": "AzureBatchLinkedService",
-#           "type": "LinkedServiceReference"
-#         },
-#         "typeProperties": {
-#           "pipelineReference": {
-#             "referenceName": "ExecuteScrapySpider",
-#             "type": "PipelineReference"
-#           }
-#         },
-#         "policy": {
-#           "timeout": "7.00:00:00",
-#           "retry": 3,
-#           "retryIntervalInSeconds": 30,
-#           "secureOutput": false,
-#           "secureInput": false
-#         }
-#       }
-#     ]
-#   }
-# }
-# EOF
+# Create Data Factory Pipeline
+cd $BASE_DIR
+cat << EOF > pipeline.json
+{
+  "name": "$PIPELINE_NAME",
+  "properties": {
+    "activities": [
+      {
+        "name": "RunScrapySpider",
+        "type": "ExecutePipeline",
+        "dependsOn": [],
+        "userProperties": [],
+        "linkedServiceName": {
+          "referenceName": "AzureBatchLinkedService",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "pipelineReference": {
+            "referenceName": "ExecuteScrapySpider",
+            "type": "PipelineReference"
+          }
+        },
+        "policy": {
+          "timeout": "7.00:00:00",
+          "retry": 3,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        }
+      }
+    ]
+  }
+}
+EOF
 
-# Pipelinejsonpath="pipeline.json"
+Pipelinejsonpath="pipeline.json"
 
-# # Attention jq doit être installé sur votre machine
-# PipelineContent=$(cat $Pipelinejsonpath | jq -c '.')
+# Attention jq doit être installé sur votre machine
+PipelineContent=$(cat $Pipelinejsonpath | jq -c '.')
 
-# az datafactory pipeline create \
-#     --resource-group $RESOURCE_GROUP \
-#     --factory-name $DATAFACT_NAME \
-#     --name $PIPELINE_NAME \
-#     --pipeline "$PipelineContent" \
+az datafactory pipeline create \
+    --resource-group $RESOURCE_GROUP \
+    --factory-name $DATAFACT_NAME \
+    --name $PIPELINE_NAME \
+    --pipeline "$PipelineContent" \
 
 # Plan Pipeline every week
 az datafactory trigger create \
     --resource-group $RESOURCE_GROUP \
     --factory-name $DATAFACT_NAME \
-    --name WeeklyTrigger \
+    --name $TRIGGER_NAME \
     --properties '{
       "type": "ScheduleTrigger",
       "pipelines": [
         {
           "pipelineReference": {
-            "referenceName": "'"${PIPELINE_NAME}"'"
+            "referenceName": "'"${PIPELINE_NAME}"'",
+            "type": "PipelineReference"
           }
         }
       ],
@@ -213,35 +229,36 @@ az datafactory trigger create \
     }'
 
 
+
 # OK jusque là ! Reste à runner le trigger donc voir sur le dossier scrapping _auto--main la partie start
 
-# # Démarrer le trigger
-# az datafactory trigger start \
-#     --resource-group $RESOURCE_GROUP \
-#     --factory-name $DATAFACT_NAME \
-#     --name $TriggerName
+# Démarrer le trigger
+az datafactory trigger start \
+    --resource-group $RESOURCE_GROUP \
+    --factory-name $DATAFACT_NAME \
+    --name $TRIGGER_NAME
 
 echo "___DATAFACTORY-PIPELINE___ finish"
 
 # Save variables in .env fils
 cat <<EOT > .env
-# ___RESSOURCE_GROUP___
-RESOURCE_GROUP=$RESOURCE_GROUP
-LOCATION=$LOCATION
-# ___DATABASE___
-PGHOST=$SERVER_URL
-PGUSER=$ADMIN_USER
-PGPORT=5432
-PGDATABASE=$DATABASE_NAME
-PGPASSWORD=$ADMIN_PASSWORD
-DATABASE_URL=postgresql+psycopg2://$ADMIN_USER:$ADMIN_PASSWORD@$SERVER_URL:5432/$DATABASE_NAME
-SKU_SERVER=$SKU_SERVER
-SERVER_NAME=$SERVER_NAME
-# ___STORAGE___
-STORAGE_NAME=$STORAGE_NAME
-SKUNAME=$SKUNAME
-STORAGE_KEY=$STORAGE_KEY
-CONTAINER_NAME=$CONTAINER_NAME
+# # ___RESSOURCE_GROUP___
+# RESOURCE_GROUP=$RESOURCE_GROUP
+# LOCATION=$LOCATION
+# # ___DATABASE___
+# PGHOST=$SERVER_URL
+# PGUSER=$ADMIN_USER
+# PGPORT=5432
+# PGDATABASE=$DATABASE_NAME
+# PGPASSWORD=$ADMIN_PASSWORD
+# DATABASE_URL=postgresql+psycopg2://$ADMIN_USER:$ADMIN_PASSWORD@$SERVER_URL:5432/$DATABASE_NAME
+# SKU_SERVER=$SKU_SERVER
+# SERVER_NAME=$SERVER_NAME
+# # ___STORAGE___
+# STORAGE_NAME=$STORAGE_NAME
+# SKUNAME=$SKUNAME
+# STORAGE_KEY=$STORAGE_KEY
+# CONTAINER_NAME=$CONTAINER_NAME
 # ___DATAFACTORY - PIPELINE___
 DATAFACT_NAME=$DATAFACT_NAME
 PIPELINE_NAME=$PIPELINE_NAME

@@ -1,41 +1,42 @@
 Sub Create_Tables()
 
-DoCmd.RunSQL "CREATE TABLE Formation(" & _
+DoCmd.RunSQL "CREATE TABLE Formations(" & _
    "ID INT," & _
    "Titre VARCHAR(50) NOT NULL," & _
-   "Prix_mini CURRENCY," & _
-   "Prix_max CURRENCY," & _
-   "Handicap LOGICAL," & _
-   "Region VARCHAR(50)," & _
-   "Code_region VARCHAR(50)," & _
    "Date_début DATE," & _
    "Date_fin DATE," & _
    "Duree_jours INT," & _
    "Duree_heure VARCHAR(50)," & _
-   "Niveau_sortie VARCHAR(50)," & _
+   "Region VARCHAR(50)," & _
+   "Code_region VARCHAR(50)," & _
    "Ville VARCHAR(50)," & _
+   "Niveau_sortie VARCHAR(50)," & _
+   "Prix_mini CURRENCY," & _
+   "Prix_max CURRENCY," & _
+   "Handicap LOGICAL," & _
+   "Source_info VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(ID)" & _
 ");"   
 
 DoCmd.RunSQL "CREATE TABLE RNCP(" & _
    "Code INT," & _
-   "Désignation VARCHAR(50) NOT NULL," & _
+   "Designation VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(Code)" & _
 ");"   
 
 DoCmd.RunSQL "CREATE TABLE RS(" & _
    "Code INT," & _
-   "Désignation VARCHAR(50) NOT NULL," & _
+   "Designation VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE Certification(" & _
+DoCmd.RunSQL "CREATE TABLE Certifications(" & _
    "Code VARCHAR(50)," & _
    "Designation VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE Formacode(" & _
+DoCmd.RunSQL "CREATE TABLE Formacodes(" & _
    "Code INT," & _
    "Designation VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(Code)" & _
@@ -47,7 +48,7 @@ DoCmd.RunSQL "CREATE TABLE NSF(" & _
    "PRIMARY KEY(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE RNCP_Formacode(" & _
+DoCmd.RunSQL "CREATE TABLE RNCP_Formacodes(" & _
    "Code INT," & _
    "Code_1 INT," & _
    "Code_rncp INT NOT NULL," & _
@@ -56,10 +57,10 @@ DoCmd.RunSQL "CREATE TABLE RNCP_Formacode(" & _
    "UNIQUE(Code_rncp)," & _
    "UNIQUE(Code_formacode)," & _
    "FOREIGN KEY(Code) REFERENCES RNCP(Code)," & _
-   "FOREIGN KEY(Code_1) REFERENCES Formacode(Code)" & _
+   "FOREIGN KEY(Code_1) REFERENCES Formacodes(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE RS_Formacode(" & _
+DoCmd.RunSQL "CREATE TABLE RS_Formacodes(" & _
    "Code INT," & _
    "Code_1 INT," & _
    "Code_rs INT NOT NULL," & _
@@ -68,10 +69,10 @@ DoCmd.RunSQL "CREATE TABLE RS_Formacode(" & _
    "UNIQUE(Code_rs)," & _
    "UNIQUE(Code_formacode)," & _
    "FOREIGN KEY(Code) REFERENCES RS(Code)," & _
-   "FOREIGN KEY(Code_1) REFERENCES Formacode(Code)" & _
+   "FOREIGN KEY(Code_1) REFERENCES Formacodes(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE RS_Formation(" & _
+DoCmd.RunSQL "CREATE TABLE RS_Formations(" & _
    "ID INT," & _
    "Code INT," & _
    "Code_rs INT NOT NULL," & _
@@ -79,11 +80,11 @@ DoCmd.RunSQL "CREATE TABLE RS_Formation(" & _
    "PRIMARY KEY(ID, Code)," & _
    "UNIQUE(Code_rs)," & _
    "UNIQUE(ID_formation)," & _
-   "FOREIGN KEY(ID) REFERENCES Formation(ID)," & _
+   "FOREIGN KEY(ID) REFERENCES Formations(ID)," & _
    "FOREIGN KEY(Code) REFERENCES RS(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE RNCP_Formation(" & _
+DoCmd.RunSQL "CREATE TABLE RNCP_Formations(" & _
    "ID INT," & _
    "Code INT," & _
    "Code_rncp INT NOT NULL," & _
@@ -91,11 +92,11 @@ DoCmd.RunSQL "CREATE TABLE RNCP_Formation(" & _
    "PRIMARY KEY(ID, Code)," & _
    "UNIQUE(Code_rncp)," & _
    "UNIQUE(ID_formation)," & _
-   "FOREIGN KEY(ID) REFERENCES Formation(ID)," & _
+   "FOREIGN KEY(ID) REFERENCES Formations(ID)," & _
    "FOREIGN KEY(Code) REFERENCES RNCP(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE Certification_Formation(" & _
+DoCmd.RunSQL "CREATE TABLE Certifications_Formations(" & _
    "ID INT," & _
    "Code VARCHAR(50)," & _
    "ID_formation INT NOT NULL," & _
@@ -103,19 +104,19 @@ DoCmd.RunSQL "CREATE TABLE Certification_Formation(" & _
    "PRIMARY KEY(ID, Code)," & _
    "UNIQUE(ID_formation)," & _
    "UNIQUE(Code_certification)," & _
-   "FOREIGN KEY(ID) REFERENCES Formation(ID)," & _
-   "FOREIGN KEY(Code) REFERENCES Certification(Code)" & _
+   "FOREIGN KEY(ID) REFERENCES Formations(ID)," & _
+   "FOREIGN KEY(Code) REFERENCES Certifications(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE Formation_NSF(" & _
+DoCmd.RunSQL "CREATE TABLE Formations_NSF(" & _
    "ID INT," & _
    "Code VARCHAR(50)," & _
    "ID_formation INT NOT NULL," & _
-   "Code_nsf INT NOT NULL," & _
+   "Code_nsf VARCHAR(50) NOT NULL," & _
    "PRIMARY KEY(ID, Code)," & _
    "UNIQUE(ID_formation)," & _
    "UNIQUE(Code_nsf)," & _
-   "FOREIGN KEY(ID) REFERENCES Formation(ID)," & _
+   "FOREIGN KEY(ID) REFERENCES Formations(ID)," & _
    "FOREIGN KEY(Code) REFERENCES NSF(Code)" & _
 ");"   
 

@@ -6,8 +6,18 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+import csv
 
+class CsvPipeline:
+    def open_spider(self, spider):
+        self.file = open('formations.csv', 'w', newline='', encoding='utf-8')
+        self.writer = csv.DictWriter(self.file, fieldnames=['title', 'rncp', 'formacodes', 'nsf_codes'])
+        self.writer.writeheader()
+
+    def close_spider(self, spider):
+        self.file.close()
 
 class SimplonscrapyPipeline:
     def process_item(self, item, spider):
+        self.writer.writerow(item)
         return item

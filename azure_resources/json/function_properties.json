@@ -2,11 +2,11 @@
     "annotations": [],
     "type": "AzureFunction",
     "typeProperties": {
-        "functionAppUrl": "https://allocinefunctionapp.azurewebsites.net",
+        "functionAppUrl": "https://SadaheFunctionApp.azurewebsites.net",
         "authentication": "Anonymous",
         "functionKey": {
             "type": "SecureString",
-            "value": "$FUNCTION_KEY"
+            "value": "PCimyfkGUpsyXvZTakBnrMmCLAF1Q8gkrPHak6dSsa0HAzFurmZKnQ=="
         }
     }   
 }

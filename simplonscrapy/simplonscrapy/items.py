@@ -15,5 +15,9 @@ class SimplonscrapyItem(scrapy.Item):
     formation_id  = scrapy.Field()
     niveau_sortie  = scrapy.Field()
     prix  = scrapy.Field()
-
+    region = scrapy.Field()
+    start_date = scrapy.Field()
+    duree = scrapy.Field()
+    type_formation = scrapy.Field()
+    lieu_formation = scrapy.Field()
     

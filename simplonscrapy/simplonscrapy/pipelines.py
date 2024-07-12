@@ -26,7 +26,12 @@ class SimplonscrapyPipeline:
         item=self.clean_formation_id(item)
         item=self.clean_niveau_sortie(item)
         item=self.clean_prix(item)
-
+        item=self.clean_region(item)
+        item=self.clean_start_date(item)
+        item=self.clean_niveau_sortie(item)
+        item=self.clean_duree(item)
+        item=self.clean_type_formation(item)
+        item=self.clean_lieu_formation(item)
         return item
     
     def clean_rncp(self,item):
@@ -69,7 +74,7 @@ class SimplonscrapyPipeline:
             adapter['niveau_sortie'] = None
         return item
 
-    def clean_prix(sel,item):
+    def clean_prix(self,item):
         adapter = ItemAdapter(item)
         prix_min = adapter.get("prix_min")
         prix_max = adapter.get("prix_max")
@@ -80,8 +85,45 @@ class SimplonscrapyPipeline:
         return item
 
 
-
-
-
+    def clean_region(self,item):
+        adapter = ItemAdapter(item)
+        region = adapter.get("region")
+        if region:
+            adapter['region'] = adapter['region'].replace('\n', '').strip()
+        return item
     
+    
+    def clean_start_date(self,item):
+        adapter = ItemAdapter(item)
+        start_date = adapter.get("start_date")
+        if start_date:
+            adapter['start_date'] = adapter['start_date'].replace('\n', '').strip()
+        return item
 
+    def clean_niveau_sortie(self,item):
+        adapter = ItemAdapter(item)
+        niveau_sortie = adapter.get("start_date")
+        if niveau_sortie:
+            adapter['niveau_sortie'] = adapter['niveau_sortie'].strip().replace("Sortie :", "").strip()
+        return item
+    
+    def clean_duree(self,item):
+        adapter = ItemAdapter(item)
+        duree = adapter.get("start_date")
+        if duree :
+            adapter['duree'] = adapter['duree'].strip()
+        return item
+
+    def clean_type_formation(self,item):
+        adapter = ItemAdapter(item)
+        type_formation = adapter.get("type_formation")
+        if type_formation:
+            adapter['type_formation'] = adapter['type_formation'].strip()
+        return item
+    
+    def clean_lieu_formation(self,item):
+        adapter = ItemAdapter(item)
+        lieu_formation = adapter.get("lieu_formation")
+        if lieu_formation:
+             adapter['lieu_formation'] = adapter['lieu_formation'].replace('\n', '').strip()
+        return item

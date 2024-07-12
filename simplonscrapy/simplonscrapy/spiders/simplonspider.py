@@ -104,37 +104,37 @@ class Simplonspider2Spider(CrawlSpider):
         item = {}
 
         # Récupérer le titre de la formation
-        item['title'] = response.xpath('//h2[@class="card-title"]/text()').get()
+        item['title2'] = response.xpath('//h2[@class="card-title"]/text()').get()
 
         # Récupérer la région de la formation
         item['region'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "location_on")]/following-sibling::text()').get()
-        if item['region']:
-            item['region'] = item['region'].replace('\n', '').strip()
+        # if item['region']:
+        #     item['region'] = item['region'].replace('\n', '').strip()
 
         # Récupérer la date de début de la formation
         item['start_date'] = response.xpath('//div[@class="card-session-info calendar"]/i[contains(text(), "event")]/following-sibling::text()').get()
-        if item['start_date']:
-            item['start_date'] = item['start_date'].replace('\n', '').strip()
+        # if item['start_date']:
+        #     item['start_date'] = item['start_date'].replace('\n', '').strip()
 
         # Récupérer le niveau de sortie de la formation
         item['niveau_sortie'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "school")]/following-sibling::text()').get()
-        if item['niveau_sortie']:
-            item['niveau_sortie'] = item['niveau_sortie'].strip().replace("Sortie :", "").strip()
+        # if item['niveau_sortie']:
+        #     item['niveau_sortie'] = item['niveau_sortie'].strip().replace("Sortie :", "").strip()
 
         # Récupérer la durée de la formation
         item['duree'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "hourglass_empty")]/following-sibling::text()').get()
-        if item['duree']:
-            item['duree'] = item['duree'].strip()
+        # if item['duree']:
+        #     item['duree'] = item['duree'].strip()
 
         # Récupérer la type deformation
         item['type_formation'] = response.xpath('//div[@class="card-content-tag"]/a/text()').get()
-        if item['type_formation']:
-            item['type_formation'] = item['type_formation'].strip()
+        # if item['type_formation']:
+        #     item['type_formation'] = item['type_formation'].strip()
 
         # Récupérer le lieu de la formation
         item['lieu_formation'] = response.xpath('//div[@class="card-content"]/text()[normalize-space()]').get()
-        if item['lieu_formation']:
-            item['lieu_formation'] = item['lieu_formation'].strip()
+        # if item['lieu_formation']:
+        #     item['lieu_formation'] = item['lieu_formation'].strip()
 
         yield item
 ##########################################################################
@@ -161,7 +161,6 @@ class SimplonCrawlSpider(CrawlSpider):
         # if rncp is not None:
         #     rncp = re.findall(r'(\d+)', rncp)[0]
         # return item
-
         
         rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
         if rncp_href:

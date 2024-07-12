@@ -25,48 +25,63 @@ class SimplonspiderSpider(CrawlSpider):
         item['title'] = response.xpath('//h1/text()').get()
 
         # Récupérer l'identifiant RNCP
-        rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
-        if rncp_href:
-            rncp_id = rncp_href.split('/')[-2]  # Récupérer le dernier segment avant le dernier '/'
-            item['rncp'] = rncp_id
-        else:
-            item['rncp'] = None
+        item['rncp'] = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
+        # if rncp_href:
+        #     rncp_id = rncp_href.split('/')[-2]  # Récupérer le dernier segment avant le dernier '/'
+        #     item['rncp'] = rncp_id
+        # else:
+        #     item['rncp'] = None
 
         # Récupérer l'identifiant RS
-        rs_href = response.xpath('//a[contains(@href,"/rs/")]/@href').get()
-        if rs_href:
-            rs_id = rs_href.split('/')[-2]  # Récupérer le dernier segment avant le dernier '/'
-            item['rs'] = rs_id
-        else:
-            item['rs'] = None
+        item['rs'] = response.xpath('//a[contains(@href,"/rs/")]/@href').get()
+        # if rs_href:
+        #     rs_id = rs_href.split('/')[-2]  # Récupérer le dernier segment avant le dernier '/'
+        #     item['rs'] = rs_id
+        # else:
+        #     item['rs'] = None
 
         # Extraire l'URL et obtenir l'identifiant de la formation
-        formation_url = response.url
-        formation_id = formation_url.split('/')[-1]
-        item['formation_id'] = formation_id
+        # formation_url = response.url
+        # formation_id = formation_url.split('/')[-1]
+        # item['formation_id'] = formation_id
+        item['formation_id']=response.url
+
 
         # Récupérer le niveau de sortie de la formation
-        rncp_text = response.xpath('//a[contains(text(),"RNCP")]/following-sibling::text()[1]').get()
-        if rncp_text:
-            niveau_sortie = rncp_text.strip()
-            item['niveau_sortie'] = niveau_sortie
-        else:
-            item['niveau_sortie'] = None
+        # rncp_text = response.xpath('//a[contains(text(),"RNCP")]/following-sibling::text()[1]').get()
+        # if rncp_text:
+        #     niveau_sortie = rncp_text.strip()
+        #     item['niveau_sortie'] = niveau_sortie
+        # else:
+        #     item['niveau_sortie'] = None
+        item['niveau_sortie']= response.xpath('//a[contains(text(),"RNCP")]/following-sibling::text()[1]').get()
+
 
         # Récupérer le prix min et max de la formation
+        # item['prix_min'] = response.xpath('//p[contains(text(),"coût horaire")]').get()
+        # item['prix_max'] = response.xpath('//p[contains(text(),"coût horaire")]').get()
+        # if prix_text:
+        #     prix_min_text = prix_text.split('varie de ')[1].split(' euros')[0].split(' à ')[0]
+        #     prix_max_text = prix_text.split('à ')[1].split(' euros')[0]
+
+        #     prix_min = ''.join(filter(str.isdigit, prix_min_text))  # Filtrer et concaténer uniquement les chiffres
+        #     prix_max = ''.join(filter(str.isdigit, prix_max_text))  # Filtrer et concaténer uniquement les chiffres
+
+        #     item['prixmin'] = prix_min
+        #     item['prixmax'] = prix_max
+        # else:
+        #     item['prixmin'] = None
+        #     item['prixmax'] = None
+
         prix_text = response.xpath('//p[contains(text(),"coût horaire")]').get()
         if prix_text:
-            prix_min_text = prix_text.split('varie de ')[1].split(' euros')[0].split(' à ')[0]
-            prix_max_text = prix_text.split('à ')[1].split(' euros')[0]
-
-            prix_min = ''.join(filter(str.isdigit, prix_min_text))  # Filtrer et concaténer uniquement les chiffres
-            prix_max = ''.join(filter(str.isdigit, prix_max_text))  # Filtrer et concaténer uniquement les chiffres
-
-            item['prixmin'] = prix_min
-            item['prixmax'] = prix_max
+            prix_min_text = re.search(r'varie de (\d+)', prix_text)
+            prix_max_text = re.search(r'à (\d+)', prix_text)
+            item['prix_min'] = prix_min_text.group(1) if prix_min_text else None
+            item['prix_max'] = prix_max_text.group(1) if prix_max_text else None
         else:
-            item['prixmin'] = None
-            item['prixmax'] = None
+            item['prix_min'] = None
+            item['prix_max'] = None
 
         yield item
 
@@ -141,7 +156,7 @@ class SimplonCrawlSpider(CrawlSpider):
         item['title'] = response.xpath('//h1/text()').get().strip()
 
         # Récupérer l'identifiant RNCP
-        
+
         # item['rncp']=response.url
         # if rncp is not None:
         #     rncp = re.findall(r'(\d+)', rncp)[0]

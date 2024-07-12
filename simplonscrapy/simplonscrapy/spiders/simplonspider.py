@@ -2,6 +2,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 import scrapy
 from scrapy.crawler import CrawlerProcess
+import re
 
 # 1er spider:
 class SimplonspiderSpider(CrawlSpider):
@@ -140,6 +141,13 @@ class SimplonCrawlSpider(CrawlSpider):
         item['title'] = response.xpath('//h1/text()').get().strip()
 
         # Récupérer l'identifiant RNCP
+        
+        # item['rncp']=response.url
+        # if rncp is not None:
+        #     rncp = re.findall(r'(\d+)', rncp)[0]
+        # return item
+
+        
         rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
         if rncp_href:
             rncp_href = response.urljoin(rncp_href)
@@ -156,7 +164,7 @@ class SimplonCrawlSpider(CrawlSpider):
         item = response.meta['item']
 
         # Extraire des informations supplémentaires depuis la page de France Compétences
-        rncp = response.xpath('//span[contains(text(),"RNCP")]/following-sibling::text()').get().strip()
+        rncp = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
         formacodes = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
         nsf_codes = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
         

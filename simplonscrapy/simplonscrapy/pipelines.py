@@ -6,9 +6,10 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-import csv
-import scrapy
+from sqlalchemy.orm import sessionmaker
+from .database import engine, Formation, Session
 import re
+
 
 # class CsvPipeline:
 #     def open_spider(self, spider):
@@ -21,34 +22,50 @@ import re
 #         self.file.close()
 
 class SimplonscrapyPipeline:
+    def __init__(self):
+        # Créer une session SQLAlchemy
+        self.Session = sessionmaker(bind=engine)
+        
     def process_item(self, item, spider):
-        item=self.clean_rncp(item)
-        item=self.clean_rs(item)
-        item=self.clean_formation_id(item)
-        item=self.clean_niveau_sortie(item)
-        item=self.clean_prix(item)
-        item=self.clean_region(item)
-        item=self.clean_start_date(item)
-        item=self.clean_niveau_sortie(item)
-        item=self.clean_duree(item)
-        item=self.clean_type_formation(item)
-        item=self.clean_lieu_formation(item)
-        #item=self.clean_rncp3(item)
-        item=self.clean_formacodes(item)
-        item=self.clean_nsf_codes(item)
+        adapter = ItemAdapter(item)
+        # Nettoyer les données
+        item = self.clean_rncp(item)
+        item = self.clean_rs(item)
+        item = self.clean_formation_id(item)
+        item = self.clean_niveau_sortie(item)
+        item = self.clean_prix(item)
+        item = self.clean_region(item)
+        item = self.clean_start_date(item)
+        item = self.clean_duree(item)
+        item = self.clean_type_formation(item)
+        item = self.clean_lieu_formation(item)
+        item = self.clean_formacodes(item)
+        item = self.clean_nsf_codes(item)
+
+        # Insérer les données dans la base de données
+        session = self.Session()
+        formation = Formation(
+            title=adapter.get('title'),
+            rncp=adapter.get('rncp'),
+            rs=adapter.get('rs'),
+            formation_id=adapter.get('formation_id'),
+            niveau_sortie=adapter.get('niveau_sortie'),
+            prix_min=adapter.get('prix_min'),
+            prix_max=adapter.get('prix_max'),
+            region=adapter.get('region'),
+            start_date=adapter.get('start_date'),
+            duree=adapter.get('duree'),
+            type_formation=adapter.get('type_formation'),
+            lieu_formation=adapter.get('lieu_formation'),
+            formacodes=adapter.get('formacodes'),
+            nsf_codes=adapter.get('nsf_codes')
+        )
+        session.add(formation)
+        session.commit()
+        session.close()
+
         return item
     
-    #@@fonctionne pour 1 et 2 def clean_rncp(self,item):
-    #     adapter=ItemAdapter(item)
-    #     rncp=adapter.get("rncp")
-    #     if rncp:
-    #         rncp_id = rncp.split('/')[-2]  # Récupérer le dernier segment avant le dernier '/'
-    #         adapter['rncp'] = rncp_id
-    #     else:
-    #         adapter['rncp'] = None
-    #     return item
-    
-    #fonctionne pour 3:
     def clean_rncp(self, item):
         adapter = ItemAdapter(item)
         rncp = adapter.get("rncp")
@@ -60,16 +77,6 @@ class SimplonscrapyPipeline:
             adapter['rncp'] = None
         return item
 
-
-    ####@@@@@ def clean_rs(self,item):
-    #     adapter=ItemAdapter(item)
-    #     rs=adapter.get("rs")
-    #     if rs:
-    #         rs_id = rs.split('/')[-2]  # Récupérer le dernier segment avant le dernier '/'
-    #         adapter['rs'] = rs_id
-    #     else:
-    #         adapter['rs'] = None
-    #     return item
     def clean_rs(self, item):
         adapter = ItemAdapter(item)
         rs = adapter.get("rs")
@@ -79,7 +86,7 @@ class SimplonscrapyPipeline:
                 rs_id = segments[-2]
                 adapter['rs'] = rs_id
             else:
-                adapter['rs'] = rs  # Ou autre comportement de secours
+                adapter['rs'] = rs  
         else:
             adapter['rs'] = None
         return item    
@@ -159,20 +166,6 @@ class SimplonscrapyPipeline:
              adapter['lieu_formation'] = adapter['lieu_formation'].replace('\n', '').strip()
         return item
     
-    # def clean_rncp3(self,item):
-    #     adapter = ItemAdapter(item)
-    #     rncp = adapter.get("rncp")
-    #     if rncp:
-    #         rncp = response.urljoin(rncp)
-    #         request = scrapy.Request(rncp, callback=self.parse_france_competences)
-    #         request.meta['item'] = adapter
-    #         yield request
-    #     else:
-    #         adapter['rncp'] = None
-    #         adapter['formacodes'] = None
-    #         adapter['nsf_codes'] = None
-    #         yield item
-
     def clean_formacodes(self, item):
         adapter = ItemAdapter(item)
         formacodes = adapter.get("formacodes")

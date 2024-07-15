@@ -136,6 +136,9 @@ class Simplonspider2Spider(CrawlSpider):
         # if item['lieu_formation']:
         #     item['lieu_formation'] = item['lieu_formation'].strip()
 
+        # Extraire l'URL et obtenir l'identifiant de la formation
+        item['formation_id']=response.url
+
         yield item
 ##########################################################################
 #3ème spider:
@@ -169,6 +172,10 @@ class SimplonCrawlSpider(CrawlSpider):
             item['nsf_codes'] = None
             yield item
 
+        # Extraire l'URL et obtenir l'identifiant de la formation
+        item['formation_id']=response.url
+
+
     def parse_france_competences(self, response):
         item = response.meta['item']
 
@@ -176,6 +183,5 @@ class SimplonCrawlSpider(CrawlSpider):
         item['rncp'] = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
         item['formacodes'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
         item['nsf_codes'] = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
-
         
         yield item

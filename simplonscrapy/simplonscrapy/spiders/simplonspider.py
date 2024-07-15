@@ -3,7 +3,7 @@ from scrapy.spiders import CrawlSpider, Rule
 import scrapy
 from scrapy.crawler import CrawlerProcess
 import re
-
+from simplonscrapy.items import SimplonscrapyItem
 # 1er spider:
 class SimplonspiderSpider(CrawlSpider):
     name = "simplonspider"
@@ -150,18 +150,13 @@ class SimplonCrawlSpider(CrawlSpider):
     )
 
     def parse_formation(self, response):
-        item = {}
+        item = SimplonscrapyItem()
+        #item = {}
 
         # Récupérer le titre de la formation
         item['title'] = response.xpath('//h1/text()').get().strip()
 
         # Récupérer l'identifiant RNCP
-
-        # item['rncp']=response.url
-        # if rncp is not None:
-        #     rncp = re.findall(r'(\d+)', rncp)[0]
-        # return item
-        
         rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
         if rncp_href:
             rncp_href = response.urljoin(rncp_href)
@@ -178,19 +173,9 @@ class SimplonCrawlSpider(CrawlSpider):
         item = response.meta['item']
 
         # Extraire des informations supplémentaires depuis la page de France Compétences
-        rncp = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
-        formacodes = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
-        nsf_codes = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
+        item['rncp'] = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
+        item['formacodes'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
+        item['nsf_codes'] = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
+
         
-        # Nettoyer les valeurs de formacodes en supprimant les ":"
-        formacodes_cleaned = [fc.replace(':', '').strip() for fc in formacodes]
-        item['formacodes'] = ', '.join(formacodes_cleaned)
-
-        # Nettoyer les valeurs de nsf_codes en supprimant les ":"
-        nsf_codes_cleaned = [nsf.replace(':', '').strip() for nsf in nsf_codes]
-        item['nsf_codes'] = ', '.join(nsf_codes_cleaned)
-
-        item['rncp'] = rncp
-
         yield item
-

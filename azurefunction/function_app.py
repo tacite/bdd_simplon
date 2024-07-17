@@ -11,7 +11,7 @@ app = func.FunctionApp()
 # Change schedule to "7.00:00:00" to scrap every 7 days
 # True to run function at the start and check
 @app.function_name(name="scrapytimer")
-@app.timer_trigger(schedule="00:01:00", 
+@app.timer_trigger(schedule="00:10:00", 
               arg_name="mytimer",
               run_on_startup=True,
               use_monitor=True) 

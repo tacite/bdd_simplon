@@ -25,7 +25,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         os.chdir("/home/site/wwwroot/simplonscrapy")
 
         # Run the scrapy on one spider
-        result = subprocess.run(['scrapy', 'crawl', 'simplonFormations'], 
+        result = subprocess.run(['scrapy', 'crawl', 'simplonspider'], 
                                 capture_output=True, text=True, 
                                 check=True)
         

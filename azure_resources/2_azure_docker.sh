@@ -6,44 +6,27 @@ if [ -f .env ]; then
 fi
 
 # ___VARIABLES___
-IMAGE_NAME="j30v/spider-demo"
+STORAGE_NAME=sadahestorage
+IMAGE_NAME="helenedubourg/sadahescrapy"
 ENVIRONMENT_NAME=sadaheenvironm
 CONTAINERAPP_NAME=sadahefunccontainerapp
+SUBSCRIPTION_ID="029b3537-0f24-400b-b624-6058a145efe1"
+FUNCTION_NAME=sadahescrapyfunction
 
-# Create environment for the azure container
-az containerapp env create \
-    --name $ENVIRONMENT_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION
+az deployment group create \
+  --resource-group $RESOURCE_GROUP \
+  --template-file template.json \
+  --parameters subscriptionId=$SUBSCRIPTION_ID \
+  name=$FUNCTION_NAME \
+  location=$LOCATION \
+  use32BitWorkerProcess=false \
+  ftpsState=<state> \
+  storageAccountName=$STORAGE_NAME \
+  linuxFxVersion=<linux-version> \
+  environmentName=<environment-name> \
+  workspaceName=<workspace-name> \
+  workspaceLocation=<workspace-location> \
+  managedEnvironmentId=<managed-environment-id> \
+  workloadProfileName=<workload-profile-name> \
+  resourceConfig=<resource-config>
 
-# Check the status of the environment creation
-STATUS=""
-while [ "$STATUS" != "Succeeded" ]; do
-  echo "Checking environment status..."
-  STATUS=$(az containerapp env show \
-      --name $ENVIRONMENT_NAME \
-      --resource-group $RESOURCE_GROUP \
-      --query "properties.provisioningState" \
-      --output tsv)
-  
-  if [ "$STATUS" == "Failed" ]; then
-    echo "Environment creation failed."
-    exit 1
-  fi
-
-  if [ "$STATUS" != "Succeeded" ]; then
-    echo "Current status: $STATUS. Waiting for 10 seconds before checking again."
-    sleep 10
-  fi
-done
-
-echo "Environment creation succeeded. Proceeding with Docker image deployment."
-
-# Deploy Docker image
-func azurecontainerapps deploy \
-    --name $CONTAINERAPP_NAME \
-    --environment $ENVIRONMENT_NAME \
-    --storage-account $STORAGE_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --image-name $IMAGE_NAME\
-    --location $LOCATION

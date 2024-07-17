@@ -4,3 +4,6 @@
 
 azure-functions
 scrapy
+sqlalchemy
+python-dotenv
+psycopg2-binary

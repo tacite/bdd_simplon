@@ -11,7 +11,7 @@ app = func.FunctionApp()
 # Change schedule to "7.00:00:00" to scrap every 7 days
 # True to run function at the start and check
 @app.function_name(name="scrapytimer")
-@app.timer_trigger(schedule="00:01:00", 
+@app.timer_trigger(schedule="00:10:00", 
               arg_name="mytimer",
               run_on_startup=True,
               use_monitor=True) 
@@ -23,14 +23,26 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
     try:
         # Change directory to the scrapy projetct
         os.chdir("/home/site/wwwroot/simplonscrapy")
+        logging.info('Changed directory to /home/site/wwwroot/simplonscrapy')
 
-        # Run the scrapy on one spider
-        result = subprocess.run(['scrapy', 'crawl', 'simplonFormations'], 
-                                capture_output=True, text=True, 
-                                check=True)
+        spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
-        # check the run
-        logging.info(result.stdout)
+        for spider in spiders:
+            logging.info(f'Starting spider: {spider}')
+            result = subprocess.run(['scrapy', 'crawl', spider], 
+                                    capture_output=True, text=True, 
+                                    check=True)
+            
+            # Log the output and errors of each spider
+            logging.info(f"Output of {spider}: {result.stdout}")
+            if result.stderr:
+                logging.error(f"Errors from {spider}: {result.stderr}")
+            
+            # Check if the spider finished successfully
+            if result.returncode != 0:
+                logging.error(f"{spider} finished with errors (return code {result.returncode})")
+            else:
+                logging.info(f"{spider} finished successfully")
 
     except subprocess.CalledProcessError as e:
         logging.error(f"Return code: {e.stderr}")

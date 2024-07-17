@@ -6,44 +6,33 @@ if [ -f .env ]; then
 fi
 
 # ___VARIABLES___
-IMAGE_NAME="j30v/spider-demo"
+STORAGE_NAME=sadahestorage
+IMAGE_NAME="helenedubourg/sadahescrapy"
 ENVIRONMENT_NAME=sadaheenvironm
 CONTAINERAPP_NAME=sadahefunccontainerapp
+SUBSCRIPTION_ID="029b3537-0f24-400b-b624-6058a145efe1"
+APP_FUNCTION_NAME=sadahescrapyfunction
 
-# Create environment for the azure container
-az containerapp env create \
-    --name $ENVIRONMENT_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --location $LOCATION
+# mettre à niveau l'extension Azure Container Apps
+az extension add --name containerapp --upgrade -y
+az provider register --namespace Microsoft.Web 
+az provider register --namespace Microsoft.App 
+az provider register --namespace Microsoft.OperationalInsights
 
-# Check the status of the environment creation
-STATUS=""
-while [ "$STATUS" != "Succeeded" ]; do
-  echo "Checking environment status..."
-  STATUS=$(az containerapp env show \
-      --name $ENVIRONMENT_NAME \
-      --resource-group $RESOURCE_GROUP \
-      --query "properties.provisioningState" \
-      --output tsv)
-  
-  if [ "$STATUS" == "Failed" ]; then
-    echo "Environment creation failed."
-    exit 1
-  fi
+# Créer un groupe de ressources
+az group create --name AzureFunctionsContainers-rg --location $LOCATION
 
-  if [ "$STATUS" != "Succeeded" ]; then
-    echo "Current status: $STATUS. Waiting for 10 seconds before checking again."
-    sleep 10
-  fi
-done
+# Créer un environnement Azure Container App
+az containerapp env create --name MyContainerappEnvironment --enable-workload-profiles --resource-group AzureFunctionsContainers-rg --location $LOCATION
 
-echo "Environment creation succeeded. Proceeding with Docker image deployment."
+# Créer un groupe de stockage universel
+az storage account create --name $STORAGE_NAME --location $LOCATION --resource-group AzureFunctionsContainers-rg --sku Standard_LRS
 
-# Deploy Docker image
-func azurecontainerapps deploy \
-    --name $CONTAINERAPP_NAME \
-    --environment $ENVIRONMENT_NAME \
-    --storage-account $STORAGE_NAME \
-    --resource-group $RESOURCE_GROUP \
-    --image-name $IMAGE_NAME\
-    --location $LOCATION
+# Vérifier que l'environnement est prêt
+az containerapp env show -n MyContainerappEnvironment -g AzureFunctionsContainers-rg
+
+# Créer une application de fonction
+az functionapp create --name $APP_FUNCTION_NAME --storage-account $STORAGE_NAME --environment MyContainerappEnvironment --workload-profile-name "Consumption" --resource-group AzureFunctionsContainers-rg --functions-version 4 --runtime dotnet-isolated --image $IMAGE_NAME
+
+# Vérifier la fonction
+az functionapp function show --resource-group AzureFunctionsContainers-rg --name $APP_FUNCTION_NAME --function-name scrapytimer --query invokeUrlTemplate

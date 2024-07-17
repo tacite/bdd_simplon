@@ -3,10 +3,10 @@
 # ___VARIABLES___
 
 # Ressource Group
-RESOURCE_GROUP=RG_SADAHE
+RESOURCE_GROUP=RG_SADAHE1
 LOCATION=francecentral
 # Flexible server - Database
-SERVER_NAME=sadaheformationserver
+SERVER_NAME=sadaheformationserver1
 SKU_SERVER=Standard_B1ms
 ADMIN_PASSWORD=SadaHe111
 ADMIN_USER=adminsadahe

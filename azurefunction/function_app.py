@@ -24,13 +24,15 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         # Change directory to the scrapy projetct
         os.chdir("/home/site/wwwroot/simplonscrapy")
 
-        # Run the scrapy on one spider
-        result = subprocess.run(['scrapy', 'crawl', 'simplonspider'], 
-                                capture_output=True, text=True, 
-                                check=True)
+        spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
-        # check the run
-        logging.info(result.stdout)
+        for spider in spiders:
+            result = subprocess.run(['scrapy', 'crawl', spider], 
+                                    capture_output=True, text=True, 
+                                    check=True)
+            
+            # Log the output of each spider
+            logging.info(f"Output of {spider}: {result.stdout}")
 
     except subprocess.CalledProcessError as e:
         logging.error(f"Return code: {e.stderr}")

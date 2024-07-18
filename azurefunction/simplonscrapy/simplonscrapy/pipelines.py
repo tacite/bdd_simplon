@@ -7,7 +7,8 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
-from .database import engine, Formation, Session
+from .database import engine, Session
+from ...models import Nsf, Formation
 import re
 
 
@@ -46,8 +47,6 @@ class SimplonscrapyPipeline:
         session = self.Session()
         formation = Formation(
             title=adapter.get('title'),
-            # rncp=adapter.get('rncp'),
-            # rs=adapter.get('rs'),
             formation_id=adapter.get('formation_id'),
             niveau_sortie=adapter.get('niveau_sortie'),
             prix_min=adapter.get('prix_min'),

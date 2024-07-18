@@ -5,8 +5,11 @@ import logging
 
 app = func.FunctionApp()
 
-# Create function with this code
+
+# Create function with this code to generate Dockerfile, host.json and .*inore
 # func init azurefunction --worker-runtime python --docker
+
+# pip freeze to generate requirements.txt + add dependencies
 
 # Change schedule to "7.00:00:00" to scrap every 7 days
 # True to run function at the start and check
@@ -25,6 +28,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         os.chdir("/home/site/wwwroot/simplonscrapy")
         logging.info('Changed directory to /home/site/wwwroot/simplonscrapy')
 
+        # Map on the 3 spiders
         spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
         for spider in spiders:

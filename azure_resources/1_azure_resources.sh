@@ -101,11 +101,13 @@ az provider register --namespace Microsoft.Web
 az provider register --namespace Microsoft.App 
 az provider register --namespace Microsoft.OperationalInsights
 
-# Create Azure Container App environment
-az containerapp env create --name $ENVIRONMENT_NAME \
-  --enable-workload-profiles \
-  --resource-group $RESOURCE_GROUP \
-  --location $LOCATION
+# Create Azure Container App environment if it does not exist
+if ! az containerapp env show --name $ENVIRONMENT_NAME --resource-group $RESOURCE_GROUP &>/dev/null; then
+  az containerapp env create --name $ENVIRONMENT_NAME \
+    --enable-workload-profiles \
+    --resource-group $RESOURCE_GROUP \
+    --location $LOCATION
+fi
 
 # Create universal storage group if does not exist
 if ! az storage account show --name $UNIVERSAL_STORAGE_NAME &>/dev/null; then
@@ -119,15 +121,17 @@ fi
 az containerapp env show -n $ENVIRONMENT_NAME \
   -g $RESOURCE_GROUP
 
-# Create function app
-az functionapp create --name $APP_FUNCTION_NAME \
-  --storage-account $UNIVERSAL_STORAGE_NAME \
-  --environment $ENVIRONMENT_NAME \
-  --workload-profile-name "Consumption" \
-  --resource-group $RESOURCE_GROUP \
-  --functions-version 4 \
-  --runtime dotnet-isolated \
-  --image $IMAGE_NAME
+# Create function app if it does not exist
+if ! az functionapp show --name $APP_FUNCTION_NAME --resource-group $RESOURCE_GROUP &>/dev/null; then
+  az functionapp create --name $APP_FUNCTION_NAME \
+    --storage-account $UNIVERSAL_STORAGE_NAME \
+    --environment $ENVIRONMENT_NAME \
+    --workload-profile-name "Consumption" \
+    --resource-group $RESOURCE_GROUP \
+    --functions-version 4 \
+    --runtime dotnet-isolated \
+    --image $IMAGE_NAME
+fi
 
 # Add env variables for scrapy
 az functionapp config appsettings set --name $APP_FUNCTION_NAME \

@@ -8,7 +8,7 @@
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
 from .database import engine, Session
-from ...models import Nsf, Formation
+from ...models import Nsf, Formation, Referentiel
 import re
 
 
@@ -64,9 +64,9 @@ class SimplonscrapyPipeline:
         # Récupérer les nsf_codes
         nsf_codes=adapter.get('nsf_codes')
         for nsf_code in nsf_codes:
-            existe_nsf_code=self.session.query(Nsf).filter_by(nsf_code=nsf_code).first()
+            existe_nsf_code=self.session.query(Nsf).filter_by(code=nsf_code).first()
             if not existe_nsf_code:
-                existe_nsf_code=Nsf(nsf_code=nsf_code)
+                existe_nsf_code=Nsf(code=nsf_code)
                 self.session.add(existe_nsf_code)
             formation.nsf_codes.append(existe_nsf_code)
 
@@ -79,7 +79,6 @@ class SimplonscrapyPipeline:
                 self.session.add(existe_rncp)
             formation.referentiel.append(existe_rncp)
 
-        # Récupérer les referentiels
         rs=adapter.get('rs'),
         for r in rs:
             existe_rs=self.session.query(Referentiel).filter_by(type=r).first()
@@ -91,11 +90,11 @@ class SimplonscrapyPipeline:
         # Récupérer les Formacodes
         formacodes=adapter.get('formacodes')
         for formacode in formacodes:
-            existe_formacode=self.session.query(Formacode).filter_by(formacode=formacode).first()
+            existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
             if not existe_formacode:
-                existe_formacode=Formacode(formacode=formacode)
+                existe_formacode=Formacode(code=formacode)
                 self.session.add(existe_formacode)
-            formation.formacodes.append(existe_formacode)
+            formacodes.append(existe_formacode)
 
 
         session.close()

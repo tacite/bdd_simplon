@@ -7,7 +7,8 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
-from .database import engine, Formation, Session
+from .database import engine, Session
+from ...models import Nsf, Formation, Referentiel
 import re
 
 
@@ -46,8 +47,6 @@ class SimplonscrapyPipeline:
         session = self.Session()
         formation = Formation(
             title=adapter.get('title'),
-            rncp=adapter.get('rncp'),
-            rs=adapter.get('rs'),
             formation_id=adapter.get('formation_id'),
             niveau_sortie=adapter.get('niveau_sortie'),
             prix_min=adapter.get('prix_min'),
@@ -57,11 +56,47 @@ class SimplonscrapyPipeline:
             duree=adapter.get('duree'),
             type_formation=adapter.get('type_formation'),
             lieu_formation=adapter.get('lieu_formation'),
-            formacodes=adapter.get('formacodes'),
-            nsf_codes=adapter.get('nsf_codes')
+            # formacodes=adapter.get('formacodes'),
         )
         session.add(formation)
         session.commit()
+
+        # Récupérer les nsf_codes
+        nsf_codes=adapter.get('nsf_codes')
+        for nsf_code in nsf_codes:
+            existe_nsf_code=self.session.query(Nsf).filter_by(code=nsf_code).first()
+            if not existe_nsf_code:
+                existe_nsf_code=Nsf(code=nsf_code)
+                self.session.add(existe_nsf_code)
+            formation.nsf_codes.append(existe_nsf_code)
+
+        # Récupérer les referentiels
+        rncp=adapter.get('rncp'),
+        for r in rncp:
+            existe_rncp=self.session.query(Referentiel).filter_by(type=r).first()
+            if not existe_rncp:
+                existe_rncp=Referentiel(type=r)
+                self.session.add(existe_rncp)
+            formation.referentiel.append(existe_rncp)
+
+        rs=adapter.get('rs'),
+        for r in rs:
+            existe_rs=self.session.query(Referentiel).filter_by(type=r).first()
+            if not  existe_rs:
+                existe_rs=Referentiel(type=r)
+                self.session.add(existe_rs)
+            formation.referentiel.append(existe_rs)
+
+        # Récupérer les Formacodes
+        formacodes=adapter.get('formacodes')
+        for formacode in formacodes:
+            existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
+            if not existe_formacode:
+                existe_formacode=Formacode(code=formacode)
+                self.session.add(existe_formacode)
+            formacodes.append(existe_formacode)
+
+
         session.close()
 
         return item

@@ -24,11 +24,17 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function ran')
 
     try:
-        # Change directory to the scrapy projetct
-        os.chdir("/home/site/wwwroot/simplonscrapy")
-        logging.info('Changed directory to /home/site/wwwroot/simplonscrapy')
+        scrapy_dir = "/home/site/wwwroot/simplonscrapy"
 
-        # Map on the 3 spiders
+        # Check if the directory exists before changing to it
+        if os.path.exists(scrapy_dir) and os.path.isdir(scrapy_dir):
+            os.chdir(scrapy_dir)
+            logging.info(f'Changed directory to {scrapy_dir}')
+        else:
+            logging.error(f'Directory {scrapy_dir} does not exist or is not a directory')
+            return
+
+        # List of the spider to run
         spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
         for spider in spiders:
@@ -50,5 +56,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
 
     except subprocess.CalledProcessError as e:
         logging.error(f"Return code: {e.stderr}")
+    except FileNotFoundError as e:
+        logging.error(f"File not found error: {str(e)}")
     except Exception as e:
         logging.error(f"Unexpected error: {str(e)}")

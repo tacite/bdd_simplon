@@ -163,7 +163,7 @@ class SimplonCrawlSpider(CrawlSpider):
         rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
         if rncp_href:
             rncp_href = response.urljoin(rncp_href)
-            request = scrapy.Request(rncp_href, callback=self.parse_france_competences)
+            request = scrapy.Request(rncp_href, callback=self.rncp_parse_france_competences)
             request.meta['item'] = item
             yield request
         else:
@@ -176,11 +176,38 @@ class SimplonCrawlSpider(CrawlSpider):
         item['formation_id']=response.url
 
 
-    def parse_france_competences(self, response):
+    def rncp_parse_france_competences(self, response):
         item = response.meta['item']
 
         # Extraire des informations supplémentaires depuis la page de France Compétences
         item['rncp'] = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
+        item['formacodes'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
+        item['nsf_codes'] = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
+        
+        yield item
+    
+    # Récupérer l'identifiant RS
+        rs_href = response.xpath('//a[contains(text(),"RS")]/@href').get()
+        if rs_href:
+            rs_href = response.urljoin(rs_href)
+            request = scrapy.Request(rs_href, callback=self.rs_parse_france_competences)
+            request.meta['item'] = item
+            yield request
+        else:
+            item['rs'] = None
+            item['formacodes'] = None
+            item['nsf_codes'] = None
+            yield item
+
+        # Extraire l'URL et obtenir l'identifiant de la formation
+        item['formation_id']=response.url
+
+
+    def rs_parse_france_competences(self, response):
+        item = response.meta['item']
+
+        # Extraire des informations supplémentaires depuis la page de France Compétences
+        item['rs'] = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
         item['formacodes'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
         item['nsf_codes'] = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
         

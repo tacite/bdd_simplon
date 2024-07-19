@@ -16,7 +16,7 @@ SKUNAME=Standard_LRS
 UNIVERSAL_STORAGE_NAME=sadahestorage
 IMAGE_NAME="helenedubourg/sadahescrapy"
 ENVIRONMENT_NAME=sadaheenvironment
-APP_FUNCTION_NAME=sadahescrapyfunction2
+APP_FUNCTION_NAME=sadahescrapyfunction
 FUNCTION_NAME=sadahescrapytimer
 
 # Erase .env if exist to renew values

@@ -5,10 +5,11 @@
 
 
 # useful for handling different item types with a single interface
+import logging
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
 from .database import engine, Session
-from ...models import Nsf, Formation, Referentiel
+from ...models import Nsf, Formation, Referentiel, Formacode
 import re
 
 
@@ -48,22 +49,22 @@ class SimplonscrapyPipeline:
         try:
             # Vérifiez si l'élément existe déjà dans la base de données
             existing_formation = session.query(Formation).filter_by(
-                title=adapter.get('title'),
+                titre=adapter.get('title'),
                 region=adapter.get('region'),
-                start_date=adapter.get('start_date')
+                date_debut=adapter.get('start_date')
             ).first()
             
             if existing_formation is None:
                 # Créer une nouvelle formation si elle n'existe pas
                 formation = Formation(
-                    title=adapter.get('title'),
+                    titre=adapter.get('title'),
                     formation_id=adapter.get('formation_id'),
                     niveau_sortie=adapter.get('niveau_sortie'),
                     prix_min=adapter.get('prix_min'),
                     prix_max=adapter.get('prix_max'),
                     region=adapter.get('region'),
-                    start_date=adapter.get('start_date'),
-                    duree=adapter.get('duree'),
+                    date_debut=adapter.get('start_date'),
+                    duree_jours=adapter.get('duree'),
                     type_formation=adapter.get('type_formation'),
                     lieu_formation=adapter.get('lieu_formation'),
                 )
@@ -85,17 +86,17 @@ class SimplonscrapyPipeline:
         # Récupérer les referentiels et les ajouter s'ils n'existent pas
         rncp=adapter.get('rncp'),
         for r in rncp:
-            existe_rncp=self.session.query(Referentiel).filter_by(type=r).first()
+            existe_rncp=self.session.query(Referentiel).filter_by(code=r).first()
             if not existe_rncp:
-                existe_rncp=Referentiel(type=r)
+                existe_rncp=Referentiel(code=r, type='RNCP')
                 self.session.add(existe_rncp)
             formation.referentiel.append(existe_rncp)
 
         rs=adapter.get('rs'),
         for r in rs:
-            existe_rs=self.session.query(Referentiel).filter_by(type=r).first()
+            existe_rs=self.session.query(Referentiel).filter_by(code=r).first()
             if not  existe_rs:
-                existe_rs=Referentiel(type=r)
+                existe_rs=Referentiel(code=r, type='RS')
                 self.session.add(existe_rs)
             formation.referentiel.append(existe_rs)
 
@@ -176,8 +177,8 @@ class SimplonscrapyPipeline:
     
     def clean_start_date(self,item):
         adapter = ItemAdapter(item)
-        start_date = adapter.get("start_date")
-        if start_date:
+        date_debut = adapter.get("start_date")
+        if date_debut:
             adapter['start_date'] = adapter['start_date'].replace('\n', '').strip()
         return item
 
@@ -193,8 +194,8 @@ class SimplonscrapyPipeline:
     
     def clean_duree(self,item):
         adapter = ItemAdapter(item)
-        duree = adapter.get("start_date")
-        if duree :
+        duree_jours = adapter.get("start_date")
+        if duree_jours :
             adapter['duree'] = adapter['duree'].strip()
         return item
 

@@ -45,23 +45,35 @@ class SimplonscrapyPipeline:
 
         # Insérer les données dans la base de données
         session = self.Session()
-        formation = Formation(
-            title=adapter.get('title'),
-            formation_id=adapter.get('formation_id'),
-            niveau_sortie=adapter.get('niveau_sortie'),
-            prix_min=adapter.get('prix_min'),
-            prix_max=adapter.get('prix_max'),
-            region=adapter.get('region'),
-            start_date=adapter.get('start_date'),
-            duree=adapter.get('duree'),
-            type_formation=adapter.get('type_formation'),
-            lieu_formation=adapter.get('lieu_formation'),
-            # formacodes=adapter.get('formacodes'),
-        )
-        session.add(formation)
-        session.commit()
+        try:
+            # Vérifiez si l'élément existe déjà dans la base de données
+            existing_formation = session.query(Formation).filter_by(
+                title=adapter.get('title'),
+                region=adapter.get('region'),
+                start_date=adapter.get('start_date')
+            ).first()
+            
+            if existing_formation is None:
+                # Créer une nouvelle formation si elle n'existe pas
+                formation = Formation(
+                    title=adapter.get('title'),
+                    formation_id=adapter.get('formation_id'),
+                    niveau_sortie=adapter.get('niveau_sortie'),
+                    prix_min=adapter.get('prix_min'),
+                    prix_max=adapter.get('prix_max'),
+                    region=adapter.get('region'),
+                    start_date=adapter.get('start_date'),
+                    duree=adapter.get('duree'),
+                    type_formation=adapter.get('type_formation'),
+                    lieu_formation=adapter.get('lieu_formation'),
+                )
+                session.add(formation)
+                session.commit()
+        except Exception as e:
+            session.rollback()
+            logging.error(f"Error processing item: {e}")
 
-        # Récupérer les nsf_codes
+        # Récupérer les nsf_codes et les ajouter s'ils n'existent pas
         nsf_codes=adapter.get('nsf_codes')
         for nsf_code in nsf_codes:
             existe_nsf_code=self.session.query(Nsf).filter_by(code=nsf_code).first()
@@ -70,7 +82,7 @@ class SimplonscrapyPipeline:
                 self.session.add(existe_nsf_code)
             formation.nsf_codes.append(existe_nsf_code)
 
-        # Récupérer les referentiels
+        # Récupérer les referentiels et les ajouter s'ils n'existent pas
         rncp=adapter.get('rncp'),
         for r in rncp:
             existe_rncp=self.session.query(Referentiel).filter_by(type=r).first()
@@ -87,7 +99,7 @@ class SimplonscrapyPipeline:
                 self.session.add(existe_rs)
             formation.referentiel.append(existe_rs)
 
-        # Récupérer les Formacodes
+        # Récupérer les formacodes et les ajouter s'ils n'existent pas
         formacodes=adapter.get('formacodes')
         for formacode in formacodes:
             existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
@@ -95,7 +107,6 @@ class SimplonscrapyPipeline:
                 existe_formacode=Formacode(code=formacode)
                 self.session.add(existe_formacode)
             formacodes.append(existe_formacode)
-
 
         session.close()
 

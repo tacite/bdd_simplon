@@ -1,5 +1,3 @@
-# database.py
-
 from sqlalchemy import create_engine, Column, Integer, String, Float, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -16,9 +14,9 @@ PGHOST = os.getenv('PGHOST')
 PGPORT = os.getenv('PGPORT')
 PGDATABASE = os.getenv('PGDATABASE')
 
-#DATABASE_URL=f'postgresql+psycopg2://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATABASE = os.getenv('PGDATABASE')}'
-# DATABASE_URL = f'postgresql+psycopg2://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATABASE}'
-DATABASE_URL="postgresql+psycopg2://adminsadahe:sad@he@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+#DATABASE_URL="postgresql+psycopg2://adminsadahe:sad@he@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+DATABASE_URL = f'postgresql+psycopg2://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATABASE}'
+
 # Créer une instance d'engine SQLAlchemy
 engine = create_engine(DATABASE_URL)
 

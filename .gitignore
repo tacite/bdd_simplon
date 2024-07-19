@@ -157,6 +157,7 @@ cython_debug/
 # Customs
 catalogueformation.csv
 data.csv
+.Ds_Store
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

@@ -13,16 +13,6 @@ from ...models import Nsf, Formation, Referentiel, Formacode
 import re
 
 
-# class CsvPipeline:
-#     def open_spider(self, spider):
-#         self.file = open('formations.csv', 'w', newline='', encoding='utf-8')
-#         self.writer = csv.DictWriter(self.file, fieldnames=['title', 'rncp', 'formacodes', 'nsf_codes'])
-#         self.writer.writeheader()
-
-
-#     def close_spider(self, spider):
-#         self.file.close()
-
 class SimplonscrapyPipeline:
     def __init__(self):
         # Créer une session SQLAlchemy

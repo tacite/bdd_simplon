@@ -24,6 +24,25 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function ran')
 
     try:
+        # ___OPTION : EMPTY DB BEFORE SCRAPING___
+        # Connexion à la base de données
+        # conn = psycopg2.connect(
+        #     dbname="your_db_name",
+        #     user="your_db_user",
+        #     password="your_db_password",
+        #     host="sadaheformationserver2.postgres.database.azure.com",
+        #     port="5432"
+        # )
+        # conn.autocommit = True
+        # cursor = conn.cursor()
+        
+        # Vider les tables
+        # logging.info('Vider les tables de la base de données')
+        # cursor.execute("TRUNCATE TABLE your_table_name RESTART IDENTITY CASCADE;")
+        # cursor.close()
+        # conn.close()
+
+        # ___SCRAPING___
         scrapy_dir = "/home/site/wwwroot/simplonscrapy"
 
         # Check if the directory exists before changing to it

@@ -5,12 +5,8 @@ import logging
 
 app = func.FunctionApp()
 
-
-<<<<<<< HEAD
 # Create function with this code to generate Dockerfile, host.json and .*ignore
-=======
-# Create function with this code to generate Dockerfile, host.json and .*inore
->>>>>>> c678482 (La fonction se crée avec le script)
+
 # func init azurefunction --worker-runtime python --docker
 
 # pip freeze to generate requirements.txt + add dependencies

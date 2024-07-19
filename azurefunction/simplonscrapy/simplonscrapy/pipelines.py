@@ -57,6 +57,7 @@ class SimplonscrapyPipeline:
                     duree_jours=adapter.get('duree'),
                     type_formation=adapter.get('type_formation'),
                     lieu_formation=adapter.get('lieu_formation'),
+                    source_info="Simplon"
                 )
                 session.add(formation)
                 session.commit()

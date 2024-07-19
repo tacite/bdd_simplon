@@ -3,10 +3,10 @@
 # ___VARIABLES___
 
 # Ressource Group
-RESOURCE_GROUP=RG_SADAHE2
+RESOURCE_GROUP=RG_SADAHE
 LOCATION=francecentral
 # Flexible server - Database
-SERVER_NAME=sadaheformationserver2
+SERVER_NAME=sadaheformationserver
 SKU_SERVER=Standard_B1ms
 ADMIN_PASSWORD=SadaHe111
 ADMIN_USER=adminsadahe
@@ -17,7 +17,7 @@ UNIVERSAL_STORAGE_NAME=sadahestorage
 IMAGE_NAME="helenedubourg/sadahescrapy"
 ENVIRONMENT_NAME=sadaheenvironment
 APP_FUNCTION_NAME=sadahescrapyfunction
-FUNCTION_NAME=scrapytimer
+FUNCTION_NAME=sadahescrapytimer
 
 # Erase .env if exist to renew values
 if [ -f ".env" ]; then

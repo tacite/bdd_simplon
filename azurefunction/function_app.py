@@ -28,11 +28,36 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function ran')
 
     try:
-        # Change directory to the scrapy projetct
-        os.chdir("/home/site/wwwroot/simplonscrapy")
-        logging.info('Changed directory to /home/site/wwwroot/simplonscrapy')
+        # ___OPTION : EMPTY DB BEFORE SCRAPING___
+        # Connexion à la base de données
+        # conn = psycopg2.connect(
+        #     dbname="your_db_name",
+        #     user="your_db_user",
+        #     password="your_db_password",
+        #     host="sadaheformationserver2.postgres.database.azure.com",
+        #     port="5432"
+        # )
+        # conn.autocommit = True
+        # cursor = conn.cursor()
+        
+        # Vider les tables
+        # logging.info('Vider les tables de la base de données')
+        # cursor.execute("TRUNCATE TABLE your_table_name RESTART IDENTITY CASCADE;")
+        # cursor.close()
+        # conn.close()
 
-        # Map on the 3 spiders
+        # ___SCRAPING___
+        scrapy_dir = "/home/site/wwwroot/simplonscrapy"
+
+        # Check if the directory exists before changing to it
+        if os.path.exists(scrapy_dir) and os.path.isdir(scrapy_dir):
+            os.chdir(scrapy_dir)
+            logging.info(f'Changed directory to {scrapy_dir}')
+        else:
+            logging.error(f'Directory {scrapy_dir} does not exist or is not a directory')
+            return
+
+        # List of the spider to run
         spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
         for spider in spiders:
@@ -54,5 +79,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
 
     except subprocess.CalledProcessError as e:
         logging.error(f"Return code: {e.stderr}")
+    except FileNotFoundError as e:
+        logging.error(f"File not found error: {str(e)}")
     except Exception as e:
         logging.error(f"Unexpected error: {str(e)}")

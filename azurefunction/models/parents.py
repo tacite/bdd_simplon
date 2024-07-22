@@ -9,15 +9,13 @@ class Formation(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     titre: Mapped[str]
     date_debut: Mapped[Optional[datetime]]
-    date_fin: Mapped[Optional[datetime]]
     duree_jours: Mapped[Optional[int]]
     duree_heures: Mapped[Optional[int]]
     region: Mapped[str]
     code_region: Mapped[str]
     ville: Mapped[Optional[str]]
     niveau_sortie: Mapped[Optional[str]]
-    prix_mini: Mapped[Optional[float]]
-    prix_max: Mapped[Optional[float]]
+    prix: Mapped[Optional[float]]
     handicap: Mapped[Optional[bool]]
     source_info: Mapped[str]
     

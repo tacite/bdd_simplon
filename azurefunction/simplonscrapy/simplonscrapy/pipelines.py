@@ -5,10 +5,14 @@
 
 
 # useful for handling different item types with a single interface
+import os
+import sys
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
 from .database import engine, Session
-from ...models import Nsf, Formation, Referentiel
+# Add the project root to the PYTHONPATH
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from models.parents import Formation, Formacode, Nsf, Referentiel
 import re
 
 

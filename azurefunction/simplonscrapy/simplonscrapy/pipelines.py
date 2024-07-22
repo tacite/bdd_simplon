@@ -8,8 +8,8 @@
 import logging
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
-from .database import engine, Session
-from ...models import Nsf, Formation, Referentiel, Formacode
+from simplonscrapy.database import engine
+from models import Nsf, Formation, Referentiel, Formacode
 import re
 
 

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# When change Dockerfile, build and push new image, deploy the function and restart
+# az functionapp deployment container config --enable-cd true -n sadahescrapyfunction -g RG_SADAHE
+# az functionapp restart -n sadahescrapyfunction -g RG_SADAHE
+
 # ___VARIABLES___
 
 # Ressource Group
@@ -54,7 +58,7 @@ if ! az postgres flexible-server firewall-rule show --resource-group $RESOURCE_G
       --name $SERVER_NAME \
       --rule-name AllowAll \
       --start-ip-address 0.0.0.0 \
-      --end-ip-address 0.0.0.0
+      --end-ip-address 255.255.255.255
 fi
 
 # Wait for the PostgreSQL server to be available and retrieve "SERVER_URL="

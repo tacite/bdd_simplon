@@ -5,6 +5,7 @@ from typing import Optional
 import sys
 import os
 import csv
+from math import ceil
 from tqdm import tqdm
 
 # Add the project root to the PYTHONPATH
@@ -88,16 +89,17 @@ def fill_referentiel(row: OrderedDict, session: Session):
 def fill_database() -> None:
     connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
     engine = create_engine(connection_string)
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=engine) 
     session = Session()
     
     
-    meta = MetaData()
-    meta.reflect(bind=engine)
-    for table in reversed(meta.sorted_tables):
-        session.execute(table.delete())
-    session.commit()
+#    meta = MetaData()
+ #   meta.reflect(bind=engine)
+  #  for table in reversed(meta.sorted_tables):
+   #     session.execute(table.delete())
+    #session.commit()
     
     fill_formacode(session)
     
@@ -106,10 +108,11 @@ def fill_database() -> None:
     
     with open('data/test.csv') as csv_file:
         for row in tqdm(csv.DictReader(csv_file, delimiter=';'), total=lines):
-#        reader = csv.DictReader(open("data/test.csv"), delimiter=";")
- #       for row in reader:
+            heures = int(row['nombre_heures_total_mean'])
+            jours = ceil(heures/8)
             formation = Formation(titre=row['intitule_formation'], region=row['nom_region'], code_region=row['code_region'],
-                                niveau_sortie=row['libelle_niveau_sortie_formation'], source_info="not_simplon")
+                                niveau_sortie=row['libelle_niveau_sortie_formation'], source_info="france_competence",
+                                duree_heures=heures, duree_jours=jours, prix=row['frais_ttc_tot_mean'])
             session.add(formation)
             session.flush()
             certif = fill_certification(row, session)

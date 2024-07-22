@@ -4,12 +4,24 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-# useful for handling different item types with a single interface
+# useful for handling different item types with a single 
+import sys
+import os
+
+# Add way to models directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, "../../"))
+model_path = os.path.join(project_root, "models")
+
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# Other import
 import logging
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
-from simplonscrapy.database import engine
-from models import Nsf, Formation, Referentiel, Formacode
+from .database import engine
+from models.parents import Formation, Referentiel, Nsf, Formacode
 import re
 
 

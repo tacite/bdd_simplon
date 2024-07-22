@@ -43,7 +43,7 @@ DoCmd.RunSQL "CREATE TABLE NSF(" & _
    "PRIMARY KEY(Code)" & _
 ");"   
 
-DoCmd.RunSQL "CREATE TABLE RS_Formacode(" & _
+DoCmd.RunSQL "CREATE TABLE Referentiel_Formacode(" & _
    "ID INT," & _
    "Code INT," & _
    "ID_referentiel INT NOT NULL," & _

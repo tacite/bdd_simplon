@@ -94,7 +94,7 @@ def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
     return referentiel
 
 def fill_database() -> None:
-    connection_string="postgresql+psycopg2://adminsadahe:sad@he@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+    connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
     #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
     engine = create_engine(connection_string)
     Base.metadata.drop_all(engine)

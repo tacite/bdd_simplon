@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load variables
-source ../simplonscrapy/.env
+source .env
 
 # Delete resource group
 az group delete --resource-group $RESOURCE_GROUP

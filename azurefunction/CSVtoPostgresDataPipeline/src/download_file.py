@@ -9,7 +9,7 @@ def download_file():
     # parametres de la requete 
     params = {
         'where': "libelle_nsf_1 like 'Informatique' and nom_region is not null and code_certifinfo != -1",
-        'select': "nom_of,nom_region,type_referentiel,code_inventaire,code_rncp,intitule_certification,code_certifinfo,libelle_niveau_sortie_formation,code_formacode_1,code_formacode_2,code_formacode_3,code_formacode_4,code_formacode_5,libelle_code_formacode_principal,libelle_nsf_1,libelle_nsf_2,libelle_nsf_3,code_nsf_1,code_nsf_2,code_nsf_3,intitule_formation,nombre_heures_total_min,nombre_heures_total_max,frais_ttc_tot_min,frais_ttc_tot_max,code_region"
+        'select': "nom_of,nom_region,type_referentiel,code_inventaire,code_rncp,intitule_certification,code_certifinfo,libelle_niveau_sortie_formation,code_formacode_1,code_formacode_2,code_formacode_3,code_formacode_4,code_formacode_5,libelle_code_formacode_principal,libelle_nsf_1,libelle_nsf_2,libelle_nsf_3,code_nsf_1,code_nsf_2,code_nsf_3,intitule_formation,nombre_heures_total_mean,frais_ttc_tot_mean,code_region"
         }
     
     try:

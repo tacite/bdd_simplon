@@ -4,26 +4,23 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-# useful for handling different item types with a single 
-import sys
-import os
-
-# Add way to models directory
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(current_dir, "../../"))
-model_path = os.path.join(project_root, "models")
-
-if project_root not in sys.path:
-    sys.path.append(project_root)
-
-# Other import
-import logging
+# useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from sqlalchemy.orm import sessionmaker
-from .database import engine
-from models.parents import Formation, Referentiel, Nsf, Formacode
+from .database import engine, Session
+from ...models import Nsf, Formation, Referentiel
 import re
 
+
+# class CsvPipeline:
+#     def open_spider(self, spider):
+#         self.file = open('formations.csv', 'w', newline='', encoding='utf-8')
+#         self.writer = csv.DictWriter(self.file, fieldnames=['title', 'rncp', 'formacodes', 'nsf_codes'])
+#         self.writer.writeheader()
+
+
+#     def close_spider(self, spider):
+#         self.file.close()
 
 class SimplonscrapyPipeline:
     def __init__(self):
@@ -48,36 +45,23 @@ class SimplonscrapyPipeline:
 
         # Insérer les données dans la base de données
         session = self.Session()
-        try:
-            # Vérifiez si l'élément existe déjà dans la base de données
-            existing_formation = session.query(Formation).filter_by(
-                titre=adapter.get('title'),
-                region=adapter.get('region'),
-                date_debut=adapter.get('start_date')
-            ).first()
-            
-            if existing_formation is None:
-                # Créer une nouvelle formation si elle n'existe pas
-                formation = Formation(
-                    titre=adapter.get('title'),
-                    formation_id=adapter.get('formation_id'),
-                    niveau_sortie=adapter.get('niveau_sortie'),
-                    prix_min=adapter.get('prix_min'),
-                    prix_max=adapter.get('prix_max'),
-                    region=adapter.get('region'),
-                    date_debut=adapter.get('start_date'),
-                    duree_jours=adapter.get('duree'),
-                    type_formation=adapter.get('type_formation'),
-                    lieu_formation=adapter.get('lieu_formation'),
-                    source_info="Simplon"
-                )
-                session.add(formation)
-                session.commit()
-        except Exception as e:
-            session.rollback()
-            logging.error(f"Error processing item: {e}")
+        formation = Formation(
+            title=adapter.get('title'),
+            formation_id=adapter.get('formation_id'),
+            niveau_sortie=adapter.get('niveau_sortie'),
+            prix_min=adapter.get('prix_min'),
+            prix_max=adapter.get('prix_max'),
+            region=adapter.get('region'),
+            start_date=adapter.get('start_date'),
+            duree=adapter.get('duree'),
+            type_formation=adapter.get('type_formation'),
+            lieu_formation=adapter.get('lieu_formation'),
+            # formacodes=adapter.get('formacodes'),
+        )
+        session.add(formation)
+        session.commit()
 
-        # Récupérer les nsf_codes et les ajouter s'ils n'existent pas
+        # Récupérer les nsf_codes
         nsf_codes=adapter.get('nsf_codes')
         for nsf_code in nsf_codes:
             existe_nsf_code=self.session.query(Nsf).filter_by(code=nsf_code).first()
@@ -86,24 +70,24 @@ class SimplonscrapyPipeline:
                 self.session.add(existe_nsf_code)
             formation.nsf_codes.append(existe_nsf_code)
 
-        # Récupérer les referentiels et les ajouter s'ils n'existent pas
+        # Récupérer les referentiels
         rncp=adapter.get('rncp'),
         for r in rncp:
-            existe_rncp=self.session.query(Referentiel).filter_by(code=r).first()
+            existe_rncp=self.session.query(Referentiel).filter_by(type=r).first()
             if not existe_rncp:
-                existe_rncp=Referentiel(code=r, type='RNCP')
+                existe_rncp=Referentiel(type=r)
                 self.session.add(existe_rncp)
             formation.referentiel.append(existe_rncp)
 
         rs=adapter.get('rs'),
         for r in rs:
-            existe_rs=self.session.query(Referentiel).filter_by(code=r).first()
+            existe_rs=self.session.query(Referentiel).filter_by(type=r).first()
             if not  existe_rs:
-                existe_rs=Referentiel(code=r, type='RS')
+                existe_rs=Referentiel(type=r)
                 self.session.add(existe_rs)
             formation.referentiel.append(existe_rs)
 
-        # Récupérer les formacodes et les ajouter s'ils n'existent pas
+        # Récupérer les Formacodes
         formacodes=adapter.get('formacodes')
         for formacode in formacodes:
             existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
@@ -111,6 +95,7 @@ class SimplonscrapyPipeline:
                 existe_formacode=Formacode(code=formacode)
                 self.session.add(existe_formacode)
             formacodes.append(existe_formacode)
+
 
         session.close()
 
@@ -180,8 +165,8 @@ class SimplonscrapyPipeline:
     
     def clean_start_date(self,item):
         adapter = ItemAdapter(item)
-        date_debut = adapter.get("start_date")
-        if date_debut:
+        start_date = adapter.get("start_date")
+        if start_date:
             adapter['start_date'] = adapter['start_date'].replace('\n', '').strip()
         return item
 
@@ -197,8 +182,8 @@ class SimplonscrapyPipeline:
     
     def clean_duree(self,item):
         adapter = ItemAdapter(item)
-        duree_jours = adapter.get("start_date")
-        if duree_jours :
+        duree = adapter.get("start_date")
+        if duree :
             adapter['duree'] = adapter['duree'].strip()
         return item
 

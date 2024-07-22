@@ -7,6 +7,3 @@ scrapy
 sqlalchemy
 python-dotenv
 psycopg2-binary
-fastapi
-uvicorn
-streamlit

@@ -5,8 +5,8 @@ import logging
 
 app = func.FunctionApp()
 
-# Create function with this code to generate Dockerfile, host.json and .*ignore
 
+# Create function with this code to generate Dockerfile, host.json and .*ignore
 # func init azurefunction --worker-runtime python --docker
 
 # pip freeze to generate requirements.txt + add dependencies
@@ -14,35 +14,47 @@ app = func.FunctionApp()
 # Change schedule to "7.00:00:00" to scrap every 7 days
 # True to run function at the start and check
 @app.function_name(name="scrapytimer")
-@app.timer_trigger(schedule="00:10:00", 
-              arg_name="mytimer",
-              run_on_startup=True,
-              use_monitor=True) 
+@app.timer_trigger(schedule="00:20:00", 
+                arg_name="mytimer",
+                run_on_startup=True,
+                use_monitor=True) 
 def scrapy_trigger(mytimer: func.TimerRequest) -> None:
     if mytimer.past_due:
         logging.info('The timer is past due!')
     logging.info('Python timer trigger function ran')
 
     try:
-        # ___OPTION : EMPTY DB BEFORE SCRAPING___
-        # Connexion à la base de données
-        # conn = psycopg2.connect(
-        #     dbname="your_db_name",
-        #     user="your_db_user",
-        #     password="your_db_password",
-        #     host="sadaheformationserver2.postgres.database.azure.com",
-        #     port="5432"
-        # )
-        # conn.autocommit = True
-        # cursor = conn.cursor()
+        csvpostgres_dir = "/home/site/wwwroot/CSVtoPostgresDataPipeline"
         
-        # Vider les tables
-        # logging.info('Vider les tables de la base de données')
-        # cursor.execute("TRUNCATE TABLE your_table_name RESTART IDENTITY CASCADE;")
-        # cursor.close()
-        # conn.close()
-
-        # ___SCRAPING___
+        # check if the directory exists before changing to it
+        if os.path.exists(csvpostgres_dir) and os.path.isdir(csvpostgres_dir):
+            os.chdir(csvpostgres_dir)
+        else:
+            logging.info(f'changed directory to {csvpostgres_dir}')
+        
+        result = subprocess.run(['python', 'main.py'], 
+                                    capture_output=True, text=True, 
+                                    check=True)
+            
+        # Log the output and errors of each spider
+        logging.info(f"Output of script: {result.stdout}")
+        if result.stderr:
+            logging.error(f"Errors from script: {result.stderr}")
+        
+        # Check if the spider finished successfully
+        if result.returncode != 0:
+            logging.error(f"script finished with errors (return code {result.returncode})")
+        else:
+            logging.info("script finished successfully")
+    
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Return code: {e.stderr}")
+    except FileNotFoundError as e:
+        logging.error(f"File not found error: {str(e)}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {str(e)}")    
+    
+    try:
         scrapy_dir = "/home/site/wwwroot/simplonscrapy"
 
         # Check if the directory exists before changing to it

@@ -1,4 +1,5 @@
 import subprocess
+import time
 import azure.functions as func
 import os
 import logging
@@ -34,14 +35,18 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
             logging.info(f'Not changed directory to {csvpostgres_dir}')
         
         result = subprocess.run('python download_file.py', shell=True)
-        
-        logging.info("Le telechargement du fichier est fait")
+        download_file = os.listdir()
+        logging.info(f"Le telechargement du fichier est fait : {download_file}")
         
         result = subprocess.run("python fill_database.py", shell=True)
         
+        # Attend fin de la fonction pour lancer la suite
+        while result.returncode!=0:
+            logging.error(f"fill_database.py a terminé avec des erreurs (code de retour {result.returncode})")
+            time.sleep(60)
         logging.info("db faite")
         
-        result = subprocess.run('rm data/test.csv', shell=True)
+        result = subprocess.run('rm test.csv', shell=True)
         
         logging.info("suppression du fichier a la fin")    
         # Log the output and errors of each spider

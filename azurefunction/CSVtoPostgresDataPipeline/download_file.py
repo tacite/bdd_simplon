@@ -1,6 +1,6 @@
 import requests
 
-FILE_OUTPUT = "data/test.csv"
+FILE_OUTPUT = "test.csv"
 
 def download_file():
     # url de l'api

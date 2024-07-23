@@ -96,7 +96,7 @@ def fill_database() -> None:
     
     fill_formacode(session)
     
-    with open('data/test.csv') as csv_file:
+    with open('test.csv') as csv_file:
         for row in csv.DictReader(csv_file, delimiter=';'):
             heures = int(row['nombre_heures_total_mean'])
             jours = ceil(heures/8)
@@ -104,7 +104,7 @@ def fill_database() -> None:
                                 niveau_sortie=row['libelle_niveau_sortie_formation'], source_info="france_competence",
                                 duree_heures=heures, duree_jours=jours, prix=row['frais_ttc_tot_mean'])
             session.add(formation)
-#            session.flush()
+            session.flush()
             certif = fill_certification(row, session)
             nsfs = fill_nsf(row, session)
             referentiel = fill_referentiel(row, session)

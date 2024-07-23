@@ -123,3 +123,6 @@ def fill_database() -> None:
             
         session.commit()
         session.close()
+
+if __name__ == "__main__":
+    fill_database()

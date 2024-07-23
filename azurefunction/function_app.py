@@ -33,8 +33,17 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         else:
             logging.info(f'Not changed directory to {csvpostgres_dir}')
         
-        result = subprocess.run('python main.py', shell=True)
-            
+        result = subprocess.run('python download_file.py', shell=True)
+        
+        logging.info("Le telechargement du fichier est fait")
+        
+        result = subprocess.run("python fill_database.py", shell=True)
+        
+        logging.info("db faite")
+        
+        result = subprocess.run('rm data/test.csv', shell=True)
+        
+        logging.info("suppression du fichier a la fin")    
         # Log the output and errors of each spider
         logging.info(f"Output of script: {result.stdout}")
         if result.stderr:

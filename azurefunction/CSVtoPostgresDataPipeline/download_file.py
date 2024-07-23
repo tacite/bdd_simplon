@@ -34,3 +34,5 @@ def download_file():
     except Exception as err:
         print(f"erreur innatendu {err}")
     
+if __name__ == "__main__":
+    download_file()

@@ -3,6 +3,9 @@
 # docker push helenedubourg/sadahescrapy:latest
 # buid et push à chaque modification de function_app
 
+# az functionapp deployment container config --enable-cd true -n sadahescrapyfunction -g RG_SADAHE
+# az functionapp restart -n sadahescrapyfunction -g RG_SADAHE
+
 # /home/site/wwwroot mène au dossier de l'azure function
 
 # To enable ssh & remote debugging on app service change the base image to the one below

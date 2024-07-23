@@ -41,7 +41,7 @@ class SimplonscrapyPipeline:
         session = self.Session()
         formation = Formation(
             titre=adapter.get('titre'),
-            formation_id=adapter.get('formation_id'),
+            # formation_id=adapter.get('formation_id'),
             niveau_sortie=adapter.get('niveau_sortie'),
             prix=adapter.get('prix'),
             # prix_min=adapter.get('prix_min'),

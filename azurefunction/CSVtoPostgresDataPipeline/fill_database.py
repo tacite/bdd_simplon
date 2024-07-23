@@ -8,7 +8,7 @@ import csv
 from math import ceil
 
 # Add the project root to the PYTHONPATH
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.parents import Formation, Certification, Formacode, Nsf, Referentiel
 from models.common_imports import Base
 from dotenv import load_dotenv

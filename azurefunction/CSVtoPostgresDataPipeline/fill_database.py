@@ -11,16 +11,8 @@ from math import ceil
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.parents import Formation, Certification, Formacode, Nsf, Referentiel
 from models.common_imports import Base
-from dotenv import load_dotenv
-# Charger les variables d'environnement depuis le fichier .env
-load_dotenv()
 
 # Récupérer les informations de connexion à la base de données depuis les variables d'environnement
-PGUSER = os.getenv('PGUSER')
-PGPASSWORD = os.getenv('PGPASSWORD')
-PGHOST = os.getenv('PGHOST')
-PGPORT = os.getenv('PGPORT')
-PGDATABASE = os.getenv('PGDATABASE')
 username = "postgres"
 password = ""
 port = 5432

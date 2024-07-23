@@ -235,7 +235,7 @@ class SimplonscrapyPipeline:
         formacodes = adapter.get("formacodes")
         if formacodes:
             formacodes_cleaned = [fc.replace(':', '').strip() for fc in formacodes]
-            adapter['formacodes'] = ', '.join(formacodes_cleaned)
+            adapter['formacodes'] = int(', '.join(formacodes_cleaned))
         else:
             adapter['formacodes'] = None
         return item

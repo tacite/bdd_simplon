@@ -1,7 +1,7 @@
 # faire les manip pour ne plus avoir à mettre sudo
-# docker build -t helenedubourg/sadahescrapy:latest /home/helene/Documents/bdd_simplon/bdd_simplon/azurefunction
+# docker build -t helenedubourg/sadahescrapy:latest /home/apprenant/Documents/bdd_simplon/bdd_simplon/azurefunction
 # docker push helenedubourg/sadahescrapy:latest
-# buid et push à chaque modification de function_app
+# build et push à chaque modification de function_app
 
 # az functionapp deployment container config --enable-cd true -n sadahescrapyfunction -g RG_SADAHE
 # az functionapp restart -n sadahescrapyfunction -g RG_SADAHE

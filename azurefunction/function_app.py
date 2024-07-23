@@ -14,7 +14,7 @@ app = func.FunctionApp()
 # Change schedule to "7.00:00:00" to scrap every 7 days
 # True to run function at the start and check
 @app.function_name(name="scrapytimer")
-@app.timer_trigger(schedule="00:20:00", 
+@app.timer_trigger(schedule="00:30:00", 
                 arg_name="mytimer",
                 run_on_startup=True,
                 use_monitor=True) 
@@ -29,12 +29,11 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         # check if the directory exists before changing to it
         if os.path.exists(csvpostgres_dir) and os.path.isdir(csvpostgres_dir):
             os.chdir(csvpostgres_dir)
+            logging.info(f'Changed directory to {csvpostgres_dir}')
         else:
-            logging.info(f'changed directory to {csvpostgres_dir}')
+            logging.info(f'Not changed directory to {csvpostgres_dir}')
         
-        result = subprocess.run(['python', 'main.py'], 
-                                    capture_output=True, text=True, 
-                                    check=True)
+        result = subprocess.run('python main.py', shell=True)
             
         # Log the output and errors of each spider
         logging.info(f"Output of script: {result.stdout}")
@@ -46,15 +45,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
             logging.error(f"script finished with errors (return code {result.returncode})")
         else:
             logging.info("script finished successfully")
-    
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Return code: {e.stderr}")
-    except FileNotFoundError as e:
-        logging.error(f"File not found error: {str(e)}")
-    except Exception as e:
-        logging.error(f"Unexpected error: {str(e)}")    
-    
-    try:
+
         scrapy_dir = "/home/site/wwwroot/simplonscrapy"
 
         # Check if the directory exists before changing to it

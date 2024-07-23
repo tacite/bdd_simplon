@@ -16,7 +16,6 @@ class Formation(Base):
     ville: Mapped[Optional[str]]
     niveau_sortie: Mapped[Optional[str]]
     prix: Mapped[Optional[float]]
-    handicap: Mapped[Optional[bool]]
     source_info: Mapped[str]
     
     # many-to-many relationship to certification, bypassing the 'certification_formation' table

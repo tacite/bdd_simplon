@@ -139,16 +139,48 @@ class SimplonscrapyPipeline:
             adapter['niveau_sortie'] = None
         return item
 
-    def clean_prix(self,item):
+    # def clean_prix(self,item):
+    #     adapter = ItemAdapter(item)
+    #     prix_min = adapter.get("prix_min")
+    #     prix_max = adapter.get("prix_max")
+    #     if prix_min:
+    #         adapter['prix_min'] = ''.join(filter(str.isdigit, prix_min))
+    #     if prix_max:
+    #         adapter['prix_max'] = ''.join(filter(str.isdigit, prix_max))
+    #     prix = (prix_max-prix_min)/2
+    #     adapter['prix'] = prix
+    #     return item
+    def clean_prix(self, item):
         adapter = ItemAdapter(item)
         prix_min = adapter.get("prix_min")
         prix_max = adapter.get("prix_max")
+
+        # Nettoyer et extraire les chiffres des prix min et max
         if prix_min:
-            adapter['prix_min'] = ''.join(filter(str.isdigit, prix_min))
+            prix_min = ''.join(filter(str.isdigit, prix_min))
+            if prix_min.isdigit():
+                prix_min = float(prix_min)
+            else:
+                prix_min = None
         if prix_max:
-            adapter['prix_max'] = ''.join(filter(str.isdigit, prix_max))
-        prix = (prix_max-prix_min)/2
+            prix_max = ''.join(filter(str.isdigit, prix_max))
+            if prix_max.isdigit():
+                prix_max = float(prix_max)
+            else:
+                prix_max = None
+
+        # Mettre à jour l'adapter avec les valeurs nettoyées
+        adapter['prix_min'] = prix_min
+        adapter['prix_max'] = prix_max
+
+        # Calculer la moyenne du prix si les deux valeurs sont présentes
+        if prix_min is not None and prix_max is not None:
+            prix = (prix_max + prix_min) / 2
+        else:
+            prix = None
+
         adapter['prix'] = prix
+
         return item
 
 

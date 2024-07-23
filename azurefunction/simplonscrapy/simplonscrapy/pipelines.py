@@ -16,16 +16,6 @@ from models.parents import Formation, Formacode, Nsf, Referentiel
 import re
 
 
-# class CsvPipeline:
-#     def open_spider(self, spider):
-#         self.file = open('formations.csv', 'w', newline='', encoding='utf-8')
-#         self.writer = csv.DictWriter(self.file, fieldnames=['title', 'rncp', 'formacodes', 'nsf_codes'])
-#         self.writer.writeheader()
-
-
-#     def close_spider(self, spider):
-#         self.file.close()
-
 class SimplonscrapyPipeline:
     def __init__(self):
         # Créer une session SQLAlchemy
@@ -42,7 +32,7 @@ class SimplonscrapyPipeline:
         item = self.clean_region(item)
         item = self.clean_start_date(item)
         item = self.clean_duree(item)
-        item = self.clean_type_formation(item)
+        # item = self.clean_type_formation(item)
         item = self.clean_lieu_formation(item)
         item = self.clean_formacodes(item)
         item = self.clean_nsf_codes(item)
@@ -50,17 +40,18 @@ class SimplonscrapyPipeline:
         # Insérer les données dans la base de données
         session = self.Session()
         formation = Formation(
-            title=adapter.get('title'),
+            titre=adapter.get('titre'),
             formation_id=adapter.get('formation_id'),
             niveau_sortie=adapter.get('niveau_sortie'),
-            prix_min=adapter.get('prix_min'),
-            prix_max=adapter.get('prix_max'),
+            prix=adapter.get('prix'),
+            # prix_min=adapter.get('prix_min'),
+            # prix_max=adapter.get('prix_max'),
             region=adapter.get('region'),
-            start_date=adapter.get('start_date'),
-            duree=adapter.get('duree'),
-            type_formation=adapter.get('type_formation'),
-            lieu_formation=adapter.get('lieu_formation'),
-            # formacodes=adapter.get('formacodes'),
+            date_debut=adapter.get('date_debut'),
+            duree_jours=adapter.get('duree_jours'),
+            # type_formation=adapter.get('type_formation'),
+            ville=adapter.get('ville'),
+            formacodes=adapter.get('formacodes'),
         )
         session.add(formation)
         session.commit()
@@ -156,6 +147,8 @@ class SimplonscrapyPipeline:
             adapter['prix_min'] = ''.join(filter(str.isdigit, prix_min))
         if prix_max:
             adapter['prix_max'] = ''.join(filter(str.isdigit, prix_max))
+        prix = (prix_max-prix_min)/2
+        adapter['prix'] = prix
         return item
 
 
@@ -169,9 +162,9 @@ class SimplonscrapyPipeline:
     
     def clean_start_date(self,item):
         adapter = ItemAdapter(item)
-        start_date = adapter.get("start_date")
-        if start_date:
-            adapter['start_date'] = adapter['start_date'].replace('\n', '').strip()
+        date_debut = adapter.get("date_debut")
+        if date_debut:
+            adapter['date_debut'] = adapter['date_debut'].replace('\n', '').strip()
         return item
 
     def clean_niveau_sortie(self, item):
@@ -186,9 +179,9 @@ class SimplonscrapyPipeline:
     
     def clean_duree(self,item):
         adapter = ItemAdapter(item)
-        duree = adapter.get("start_date")
-        if duree :
-            adapter['duree'] = adapter['duree'].strip()
+        duree_jours = adapter.get("date_debut")
+        if duree_jours :
+            adapter['duree_jours'] = adapter['duree_jours'].strip()
         return item
 
     def clean_type_formation(self,item):
@@ -200,9 +193,9 @@ class SimplonscrapyPipeline:
     
     def clean_lieu_formation(self,item):
         adapter = ItemAdapter(item)
-        lieu_formation = adapter.get("lieu_formation")
-        if lieu_formation:
-             adapter['lieu_formation'] = adapter['lieu_formation'].replace('\n', '').strip()
+        ville = adapter.get("ville")
+        if ville:
+             adapter['ville'] = adapter['ville'].replace('\n', '').strip()
         return item
     
     def clean_formacodes(self, item):

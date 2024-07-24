@@ -116,9 +116,14 @@ def fill_database() -> None:
     session = Session()
     
     fill_formacode(session)
-    
+    count = 0
     with open('test.csv') as csv_file:
         for row in csv.DictReader(csv_file, delimiter=';'):
+            if count == 1000:
+                session.commit()
+                session.close()       
+                break
+            count += 1
             heures = int(row['nombre_heures_total_mean'])
             jours = ceil(heures/8)
             formation = Formation(titre=row['intitule_formation'], region=row['nom_region'], code_region=row['code_region'],

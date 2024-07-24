@@ -2,5 +2,8 @@
     "azureFunctions.deploySubpath": "azure_resources",
     "azureFunctions.projectLanguage": "C#Script",
     "azureFunctions.projectRuntime": "~4",
-    "debug.internalConsoleOptions": "neverOpen"
+    "debug.internalConsoleOptions": "neverOpen",
+    "python.analysis.extraPaths": [
+        "./azurefunction"
+    ]
 }

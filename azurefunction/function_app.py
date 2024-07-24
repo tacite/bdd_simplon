@@ -34,7 +34,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         else:
             logging.info(f'Not changed directory to {csvpostgres_dir}')
         
-        result = subprocess.run('python download_file.py', shell=True)
+        result = subprocess.run(['python', 'main.py'], capture_output=True, text=True, check=True)
         download_file = os.listdir()
         logging.info(f"Le telechargement du fichier est fait : {download_file}")
         
@@ -49,10 +49,10 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         #     time.sleep(60)
         # logging.info("db faite")
 
-        # Delete the file
-        logging.info("Supprime le fichier")
-        result = subprocess.run('rm test.csv', shell=True)
-        logging.info("suppression du fichier a la fin")
+        # # Delete the file
+        # logging.info("Supprime le fichier")
+        # result = subprocess.run('rm test.csv', shell=True)
+        # logging.info("suppression du fichier a la fin")
 
         # # Change directory for scraping
         # scrapy_dir = "/home/site/wwwroot/simplonscrapy"

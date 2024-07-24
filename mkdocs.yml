@@ -6,8 +6,7 @@ nav: # on définit l'architecture de la doc en faisant les liens vers les fichie
   - Documentation:
       - Introduction: introduction.md
       - API:
-          - Module1: api/module1.md
-          - Module2: api/module2.md
+      - Automatisation:
 theme:
   name: readthedocs #on peut utiliser d'autre theme de doc
 

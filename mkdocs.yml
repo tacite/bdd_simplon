@@ -1,18 +1,16 @@
-
-
 site_name: "Database for Simplon"
-nav: # on définit l'architecture de la doc en faisant les liens vers les fichiers dans docs
+nav:
   - Accueil: index.md
   - Documentation:
       - Introduction: introduction.md
-      - API:
-      - Automatisation:
+      - API: code_structure.md
+      - Automatisation: scrapy.md
 theme:
-  name: readthedocs #on peut utiliser d'autre theme de doc
+  name: readthedocs
 
 plugins:
   - search
-  - mkdocstrings: #ce la permet d'intégrer directement les docstrings
+  - mkdocstrings:
       handlers:
         python:
           options:

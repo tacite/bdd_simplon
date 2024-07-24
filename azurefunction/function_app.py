@@ -54,36 +54,36 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         # result = subprocess.run('rm test.csv', shell=True)
         # logging.info("suppression du fichier a la fin")
 
-        # # Change directory for scraping
-        # scrapy_dir = "/home/site/wwwroot/simplonscrapy"
+        # Change directory for scraping
+        scrapy_dir = "/home/site/wwwroot/simplonscrapy"
 
-        # # Check if the directory exists before changing to it
-        # if os.path.exists(scrapy_dir) and os.path.isdir(scrapy_dir):
-        #     os.chdir(scrapy_dir)
-        #     logging.info(f'Changed directory to {scrapy_dir}')
-        # else:
-        #     logging.error(f'Directory {scrapy_dir} does not exist or is not a directory')
-        #     return
+        # Check if the directory exists before changing to it
+        if os.path.exists(scrapy_dir) and os.path.isdir(scrapy_dir):
+            os.chdir(scrapy_dir)
+            logging.info(f'Changed directory to {scrapy_dir}')
+        else:
+            logging.error(f'Directory {scrapy_dir} does not exist or is not a directory')
+            return
 
-        # # List of the spider to run
-        # spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
+        # List of the spider to run
+        spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
-        # for spider in spiders:
-        #     logging.info(f'Starting spider: {spider}')
-        #     result = subprocess.run(['scrapy', 'crawl', spider], 
-        #                             capture_output=True, text=True, 
-        #                             check=True)
+        for spider in spiders:
+            logging.info(f'Starting spider: {spider}')
+            result = subprocess.run(['scrapy', 'crawl', spider], 
+                                    capture_output=True, text=True, 
+                                    check=True)
             
-        #     # Log the output and errors of each spider
-        #     logging.info(f"Output of {spider}: {result.stdout}")
-        #     if result.stderr:
-        #         logging.error(f"Errors from {spider}: {result.stderr}")
-            
-        #     # Check if the spider finished successfully
-        #     if result.returncode != 0:
-        #         logging.error(f"{spider} finished with errors (return code {result.returncode})")
-        #     else:
-        #         logging.info(f"{spider} finished successfully")
+            # Log the output and errors of each spider
+            logging.info(f"Output of {spider}: {result.stdout}")
+            if result.stderr:
+                logging.error(f"Errors from {spider}: {result.stderr}")
+        
+            # Check if the spider finished successfully
+            if result.returncode != 0:
+                logging.error(f"{spider} finished with errors (return code {result.returncode})")
+            else:
+                logging.info(f"{spider} finished successfully")
 
     except subprocess.CalledProcessError as e:
         logging.error(f"Return code: {e.stderr}")

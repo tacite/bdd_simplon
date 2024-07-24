@@ -34,7 +34,8 @@ class SimplonscrapyPipeline:
         item = self.clean_duree(item)
         # item = self.clean_type_formation(item)
         item = self.clean_lieu_formation(item)
-        item = self.clean_formacodes(item)
+        item = self.clean_formacodes_rs(item)
+        item = self.clean_formacodes_rncp(item)
         item = self.clean_nsf_codes(item)
 
         # Insérer les données dans la base de données
@@ -50,11 +51,10 @@ class SimplonscrapyPipeline:
             date_debut=adapter.get('date_debut'),
             duree_jours=adapter.get('duree_jours'),
             # type_formation=adapter.get('type_formation'),
-            ville=adapter.get('ville'),
-            formacodes=adapter.get('formacodes'),
-        )
+            ville=adapter.get('ville')
+            )
         session.add(formation)
-        session.commit()
+        session.flush()
 
         # Récupérer les nsf_codes
         nsf_codes=adapter.get('nsf_codes')
@@ -62,24 +62,36 @@ class SimplonscrapyPipeline:
             existe_nsf_code=self.session.query(Nsf).filter_by(code=nsf_code).first()
             if not existe_nsf_code:
                 existe_nsf_code=Nsf(code=nsf_code)
-                self.session.add(existe_nsf_code)
+#                self.session.add(existe_nsf_code)
             formation.nsf_codes.append(existe_nsf_code)
 
         # Récupérer les referentiels
-        rncp=adapter.get('rncp'),
+        rncp=adapter.get('rncp')
         for r in rncp:
-            existe_rncp=self.session.query(Referentiel).filter_by(type=r).first()
+            existe_rncp=self.session.query(Referentiel).filter_by(type='RNCP', code=r).first()
             if not existe_rncp:
-                existe_rncp=Referentiel(type=r)
-                self.session.add(existe_rncp)
+                existe_rncp=Referentiel(type='RNCP', code=r)
+            formacodes = adapter.get('formacodes_rncp')
+            for formacode in formacodes:
+                existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
+                if not existe_formacode:
+                    existe_formacode = Formacode(code=formacode)
+                existe_rncp.formacode.append(existe_formacode)
+            self.session.add(existe_rncp)
             formation.referentiel.append(existe_rncp)
 
-        rs=adapter.get('rs'),
+        rs=adapter.get('rs')
         for r in rs:
-            existe_rs=self.session.query(Referentiel).filter_by(type=r).first()
+            existe_rs=self.session.query(Referentiel).filter_by(type='RS', code=r).first()
             if not  existe_rs:
-                existe_rs=Referentiel(type=r)
-                self.session.add(existe_rs)
+                existe_rs=Referentiel(type='RS', code=r)
+            formacodes = adapter.get('formacodes_rs')
+            for formacode in formacodes:
+                existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
+                if not existe_formacode:
+                    existe_formacode = Formacode(code=formacode)
+                existe_rs.formacode.append(existe_formacode)
+            self.session.add(existe_rncp)
             formation.referentiel.append(existe_rs)
 
         # Récupérer les Formacodes
@@ -88,10 +100,10 @@ class SimplonscrapyPipeline:
             existe_formacode=self.session.query(Formacode).filter_by(code=formacode).first()
             if not existe_formacode:
                 existe_formacode=Formacode(code=formacode)
-                self.session.add(existe_formacode)
+#                self.session.add(existe_formacode)
             formacodes.append(existe_formacode)
 
-
+        session.commit()
         session.close()
 
         return item
@@ -227,17 +239,27 @@ class SimplonscrapyPipeline:
         adapter = ItemAdapter(item)
         ville = adapter.get("ville")
         if ville:
-             adapter['ville'] = adapter['ville'].replace('\n', '').strip()
+            adapter['ville'] = adapter['ville'].replace('\n', '').strip()
         return item
     
-    def clean_formacodes(self, item):
+    def clean_formacodes_rs(self, item):
         adapter = ItemAdapter(item)
-        formacodes = adapter.get("formacodes")
+        formacodes = adapter.get("formacodes_rs")
         if formacodes:
             formacodes_cleaned = [fc.replace(':', '').strip() for fc in formacodes]
-            adapter['formacodes'] = int(', '.join(formacodes_cleaned))
+            adapter['formacodes_rs'] = int(', '.join(formacodes_cleaned))
         else:
-            adapter['formacodes'] = None
+            adapter['formacodes_rs'] = None
+        return item
+
+    def clean_formacodes_rncp(self, item):
+        adapter = ItemAdapter(item)
+        formacodes = adapter.get("formacodes_rncp")
+        if formacodes:
+            formacodes_cleaned = [fc.replace(':', '').strip() for fc in formacodes]
+            adapter['formacodes_rncp'] = int(', '.join(formacodes_cleaned))
+        else:
+            adapter['formacodes_rncp'] = None
         return item
     
     def clean_nsf_codes(self, item):

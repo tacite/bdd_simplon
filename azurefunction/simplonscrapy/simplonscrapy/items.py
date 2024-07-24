@@ -22,5 +22,6 @@ class SimplonscrapyItem(scrapy.Item):
     duree_jours = scrapy.Field()
     # type_formation = scrapy.Field()
     ville = scrapy.Field()
-    formacodes = scrapy.Field()
+    formacodes_rs = scrapy.Field()
+    formacodes_rncp = scrapy.Field()
     nsf_codes = scrapy.Field()

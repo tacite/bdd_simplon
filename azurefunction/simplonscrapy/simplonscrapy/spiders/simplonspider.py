@@ -122,7 +122,7 @@ class SimplonCrawlSpider(CrawlSpider):
             yield request
         else:
             item['rncp'] = None
-            item['formacodes'] = None
+            item['formacodes_rncp'] = None
             item['nsf_codes'] = None
             yield item
 
@@ -135,7 +135,7 @@ class SimplonCrawlSpider(CrawlSpider):
 
         # Extraire des informations supplémentaires depuis la page de France Compétences
         item['rncp'] = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
-        item['formacodes'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
+        item['formacodes_rncp'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
         item['nsf_codes'] = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
         
         yield item
@@ -149,7 +149,7 @@ class SimplonCrawlSpider(CrawlSpider):
             yield request
         else:
             item['rs'] = None
-            item['formacodes'] = None
+            item['formacodes_rs'] = None
             item['nsf_codes'] = None
             yield item
 
@@ -162,7 +162,7 @@ class SimplonCrawlSpider(CrawlSpider):
 
         # Extraire des informations supplémentaires depuis la page de France Compétences
         item['rs'] = response.xpath('//span[@class="tag--fcpt-certification__status font-bold"]/text()').get()
-        item['formacodes'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
+        item['formacodes_rs'] = response.xpath('//p[contains(text(),"Formacode(s)")]/following-sibling::div/p/span/text()').getall()
         item['nsf_codes'] = response.xpath('//p[contains(text(),"Code(s) NSF")]/following-sibling::div/p/span/text()').getall()
         
         yield item

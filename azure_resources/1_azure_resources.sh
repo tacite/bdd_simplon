@@ -43,7 +43,7 @@ if ! az postgres flexible-server show --name $SERVER_NAME --resource-group $RESO
       --admin-user $ADMIN_USER \
       --sku-name $SKU_SERVER \
       --tier Burstable \
-      --version 12 \
+      --version 16 \
       --database-name $DATABASE_NAME
 fi
 

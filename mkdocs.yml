@@ -1,0 +1,22 @@
+
+
+site_name: "Database for Simplon"
+nav: # on définit l'architecture de la doc en faisant les liens vers les fichiers dans docs
+  - Accueil: index.md
+  - Documentation:
+      - Introduction: introduction.md
+      - API:
+          - Module1: api/module1.md
+          - Module2: api/module2.md
+theme:
+  name: readthedocs #on peut utiliser d'autre theme de doc
+
+plugins:
+  - search
+  - mkdocstrings: #ce la permet d'intégrer directement les docstrings
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            rendering:
+              show_source: true

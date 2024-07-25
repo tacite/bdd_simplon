@@ -7,6 +7,10 @@ from simplonscrapy.items import SimplonscrapyItem
 
 # 1er spider:
 class SimplonspiderSpider(CrawlSpider):
+    """
+    A Scrapy spider that scrapes Simplon website for formation details.
+    """
+        
     name = "simplonspider"
     allowed_domains = ["simplon.co"]
     start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
@@ -20,11 +24,31 @@ class SimplonspiderSpider(CrawlSpider):
     ]
 
     def start_requests(self):
+        """
+        Generates initial requests to start scraping using the URLs defined in `start_urls`.
+        Uses Playwright to handle JavaScript content.
+        """
         for url in self.start_urls:
             yield scrapy.Request(url, meta={"playwright": True})  # Utilisation de playwright pour JavaScript
 
     def parse_item(self, response):
-        item = SimplonscrapyItem()
+        """
+        Parses the formation details from the response.
+        
+        Extracts:
+            - Title of the formation
+            - RNCP identifier
+            - RS identifier
+            - Exit level of the formation
+            - Minimum and maximum price of the formation
+
+        Args:
+            response (scrapy.http.Response): The response object containing the HTML content of the page.
+
+        Yields:
+            dict: A dictionary with extracted formation details.
+        """
+        item = {}
 
         # Récupérer le titre de la formation
         item['titre'] = response.xpath('//h1/text()').get()
@@ -59,6 +83,9 @@ class SimplonspiderSpider(CrawlSpider):
 ####################################################################################
 # 2ème spider :
 class Simplonspider2Spider(CrawlSpider):
+    """
+    A Scrapy spider that scrapes Simplon website for session details.
+    """
     name = "simplonspider2"
     allowed_domains = ["simplon.co"]
     start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
@@ -72,11 +99,32 @@ class Simplonspider2Spider(CrawlSpider):
     ]
 
     def start_requests(self):
+        """
+        Generates initial requests to start scraping using the URLs defined in `start_urls`.
+        Uses Playwright to handle JavaScript content.
+        """
         for url in self.start_urls:
             yield scrapy.Request(url, meta={"playwright": True})  # Utilisation de playwright pour JavaScript
 
     def parse_item2(self, response):
-        item = SimplonscrapyItem()
+        """
+        Parses the session details from the response.
+
+        Extracts:
+            - Title of the formation
+            - Region of the formation
+            - Start date of the formation
+            - Exit level of the formation
+            - Duration of the formation in days
+            - City of the formation
+
+        Args:
+            response (scrapy.http.Response): The response object containing the HTML content of the page.
+
+        Yields:
+            dict: A dictionary with extracted session details.
+        """
+        item = {}
 
         # Récupérer le titre de la formation
 #        item['titre'] = response.xpath('//h2[@class="card-title"]/text()').get()
@@ -108,6 +156,9 @@ class Simplonspider2Spider(CrawlSpider):
 ##########################################################################
 #3ème spider:
 class SimplonCrawlSpider(CrawlSpider):
+    """
+    A Scrapy spider that scrapes Simplon and France Compétences websites for formation details.
+    """
     name = "simplonspider3"
     allowed_domains = ["simplon.co", "francecompetences.fr"]
     start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
@@ -118,6 +169,15 @@ class SimplonCrawlSpider(CrawlSpider):
     )
 
     def parse_formation(self, response):
+        """
+        Parses formation details from the response and makes additional requests for RNCP and RS details.
+
+        Args:
+            response (scrapy.http.Response): The response object containing the HTML content of the page.
+
+        Yields:
+            dict: A dictionary with extracted formation details and requests for additional information.
+        """
         item = SimplonscrapyItem()
         #item = {}
 
@@ -142,6 +202,15 @@ class SimplonCrawlSpider(CrawlSpider):
 
 
     def rncp_parse_france_competences(self, response):
+        """
+        Parses RNCP details from France Compétences and updates the item with additional information.
+
+        Args:
+            response (scrapy.http.Response): The response object containing the HTML content of the RNCP page.
+
+        Yields:
+            dict: An updated dictionary with RNCP details.
+        """
         item = response.meta['item']
 
         # Extraire des informations supplémentaires depuis la page de France Compétences
@@ -169,6 +238,15 @@ class SimplonCrawlSpider(CrawlSpider):
 
 
     def rs_parse_france_competences(self, response):
+        """
+        Parses RS details from France Compétences and updates the item with additional information.
+
+        Args:
+            response (scrapy.http.Response): The response object containing the HTML content of the RS page.
+
+        Yields:
+            dict: An updated dictionary with RS details.
+        """
         item = response.meta['item']
 
         # Extraire des informations supplémentaires depuis la page de France Compétences

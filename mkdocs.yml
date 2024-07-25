@@ -1,0 +1,19 @@
+site_name: "Database for Simplon"
+nav:
+  - Accueil: index.md
+  - Documentation:
+      - Introduction: introduction.md
+      - API: code_structure.md
+      - Automatisation: scrapy.md
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            rendering:
+              show_source: true

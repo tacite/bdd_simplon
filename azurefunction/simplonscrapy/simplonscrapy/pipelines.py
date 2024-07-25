@@ -7,7 +7,6 @@
 # useful for handling different item types with a single interface
 import os
 import sys
-from dotenv import load_dotenv
 from itemadapter import ItemAdapter
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -164,20 +163,60 @@ class SimplonscrapyPipeline3:
         port = 5432
         database = "postgres"
         hostname = "localhost"
-        #connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
-        connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+        connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+        #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
         engine = create_engine(connection_string)
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         self.session = Session()
         
     def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
         item = self.clean_formation_id(item)
         item = self.clean_rs(item)
         item = self.clean_rncp(item)
         item = self.clean_nsf_codes(item)
         item = self.clean_formacodes_rs(item)
         item = self.clean_formacodes_rncp(item)
+        
+        
+        formation=self.session.query(Formation).filter_by(simplon_id=adapter.get('formation_id')).first()
+        if formation:
+            nsf_codes = adapter.get('nsf_codes')
+            if nsf_codes:
+                for nsf_code in nsf_codes:
+                    nsf = self.session.query(Nsf).filter_by(code=nsf_code).first()
+                    if not nsf:
+                        nsf = Nsf(code=nsf_code)
+                    if nsf not in formation.nsf:
+                        formation.nsf.append(nsf)
+            rs_code = adapter.get('rs')
+            if rs_code:
+                rs = self.session.query(Referentiel).filter_by(code=rs_code, type="RS").first()
+                if not rs:
+                    rs = Referentiel(code=rs_code, type="RS")
+                    formacode_rs = adapter.get("formacodes_rs")
+                    for code in formacode_rs:
+                        formacode = self.session.query(Formacode).filter_by(code=code).first()
+                        if not formacode:
+                            formacode = Formacode(code=code)
+                        rs.formacode.append(formacode)
+                if rs not in formation.referentiel:
+                    formation.referentiel.append(rs)
+            rncp_code = adapter.get('rncp')
+            if rncp_code:
+                rncp = self.session.query(Referentiel).filter_by(code=rs_code, type="RNCP").first()
+                if not rncp:
+                    rncp= Referentiel(code=rncp_code, type="TNCP")
+                    formacode_rncp = adapter.get("formacodes_rncp")
+                    for code in formacode_rncp:
+                        formacode = self.session.query(Formacode).filter_by(code=code).first()
+                        if not formacode:
+                            formacode = Formacode(code=code)
+                        rncp.formacode.append(formacode)
+                if rncp not in formation.referentiel:
+                    formation.referentiel.append(rncp)                    
+            self.session.commit()        
         return item
 
     def clean_formacodes_rs(self, item):

@@ -9,7 +9,7 @@ class Certification_Formation(Base):
 class Nsf_Formation(Base):
     __tablename__ = "nsf_formation"
     
-    code_nsf: Mapped[int] = mapped_column(ForeignKey("nsf.code"), primary_key=True)
+    code_nsf: Mapped[str] = mapped_column(ForeignKey("nsf.code"), primary_key=True)
     id_formation: Mapped[int] = mapped_column(ForeignKey("formation.id"), primary_key=True)
     
 class Referentiel_Formation(Base):

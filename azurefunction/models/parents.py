@@ -39,8 +39,8 @@ class Certification(Base):
 class Nsf(Base):
     __tablename__ = "nsf"
     
-    code: Mapped[int] = mapped_column(primary_key=True)
-    designation: Mapped[str]
+    code: Mapped[str] = mapped_column(primary_key=True)
+    designation: Mapped[Optional[str]]
     
     # many-to-many relationship to formation, bypassing the 'nsf_formation' table
     formation: Mapped[List["Formation"]] = relationship(secondary="nsf_formation", back_populates="nsf")

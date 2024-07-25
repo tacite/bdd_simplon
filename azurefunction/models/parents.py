@@ -8,15 +8,16 @@ class Formation(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     titre: Mapped[str]
-    date_debut: Mapped[Optional[datetime]]
+    date_debut: Mapped[Optional[str]]
     duree_jours: Mapped[Optional[int]]
     duree_heures: Mapped[Optional[int]]
-    region: Mapped[str]
-    code_region: Mapped[str]
+    region: Mapped[Optional[str]]
+    code_region: Mapped[Optional[str]]
     ville: Mapped[Optional[str]]
     niveau_sortie: Mapped[Optional[str]]
     prix: Mapped[Optional[float]]
     source_info: Mapped[str]
+    simplon_id: Mapped[Optional[int]]
     
     # many-to-many relationship to certification, bypassing the 'certification_formation' table
     certification: Mapped[List["Certification"]] = relationship(secondary="certification_formation", back_populates="formation")

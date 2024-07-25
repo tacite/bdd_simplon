@@ -107,8 +107,8 @@ def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
 def fill_database() -> None:
     logging.info('fill_database début')
 
-    connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
-    #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+    #connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+    connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
     engine = create_engine(connection_string)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -119,7 +119,7 @@ def fill_database() -> None:
     count = 0
     with open('test.csv') as csv_file:
         for row in csv.DictReader(csv_file, delimiter=';'):
-            if count == 15000:
+            if count == 1000:
                 session.commit()
                 session.close()       
                 exit()

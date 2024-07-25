@@ -4,11 +4,16 @@ import scrapy
 from scrapy.crawler import CrawlerProcess
 import re
 from simplonscrapy.items import SimplonscrapyItem
+
 # 1er spider:
 class SimplonspiderSpider(CrawlSpider):
     name = "simplonspider"
     allowed_domains = ["simplon.co"]
     start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            'simplonscrapy.pipelines.SimplonscrapyPipeline1': 300}
+        }
 
     rules = [
         Rule(LinkExtractor(restrict_xpaths='//a[contains(text(),"Découvrez la formation")]'), callback='parse_item', follow=False),
@@ -19,7 +24,7 @@ class SimplonspiderSpider(CrawlSpider):
             yield scrapy.Request(url, meta={"playwright": True})  # Utilisation de playwright pour JavaScript
 
     def parse_item(self, response):
-        item = {}
+        item = SimplonscrapyItem()
 
         # Récupérer le titre de la formation
         item['titre'] = response.xpath('//h1/text()').get()
@@ -57,6 +62,10 @@ class Simplonspider2Spider(CrawlSpider):
     name = "simplonspider2"
     allowed_domains = ["simplon.co"]
     start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            'simplonscrapy.pipelines.SimplonscrapyPipeline2': 300}
+        }
 
     rules = [
         Rule(LinkExtractor(restrict_xpaths='//a[contains(text(),"Toutes les sessions")]'), callback='parse_item2', follow=False),
@@ -67,10 +76,10 @@ class Simplonspider2Spider(CrawlSpider):
             yield scrapy.Request(url, meta={"playwright": True})  # Utilisation de playwright pour JavaScript
 
     def parse_item2(self, response):
-        item = {}
+        item = SimplonscrapyItem()
 
         # Récupérer le titre de la formation
-        item['titre'] = response.xpath('//h2[@class="card-title"]/text()').get()
+#        item['titre'] = response.xpath('//h2[@class="card-title"]/text()').get()
 
         # Récupérer la région de la formation
         item['region'] = response.xpath('//div[@class="card-session-info"]/i[contains(text(), "location_on")]/following-sibling::text()').get()
@@ -94,6 +103,8 @@ class Simplonspider2Spider(CrawlSpider):
         item['formation_id']=response.url
 
         yield item
+        
+        
 ##########################################################################
 #3ème spider:
 class SimplonCrawlSpider(CrawlSpider):

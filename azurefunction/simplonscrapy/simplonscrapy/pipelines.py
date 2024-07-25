@@ -8,18 +8,183 @@
 import os
 import sys
 from itemadapter import ItemAdapter
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .database import engine, Session
 # Add the project root to the PYTHONPATH
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from models.parents import Formation, Formacode, Nsf, Referentiel
+from models.common_imports import Base
 import re
 
+class SimplonscrapyPipeline1:
+    def open_spider(self, spider):
+        username = "postgres"
+        password = ""
+        port = 5432
+        database = "postgres"
+        hostname = "localhost"
+        #connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+        connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+        engine = create_engine(connection_string)
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
+        
+    def process_item(self, item, spider):
+        print("parsing")
+        adapter = ItemAdapter(item)
+        item = self.clean_formation_id(item)
+        item = self.clean_niveau_sortie(item)
+        item = self.clean_prix(item)
+        formation = Formation(titre=adapter.get('titre'), niveau_sortie=adapter.get('niveau_sortie'),
+                            simplon_id=adapter.get('formation_id'), prix=adapter.get('prix'), source_info='simplon')
+        self.session.add(formation)
+        self.session.commit()
+        return item
+        
+    def clean_formation_id(self,item):
+        adapter=ItemAdapter(item)
+        formation_id=adapter.get("formation_id")
+        if formation_id:
+            formation_id = formation_id.split('/')[-1]
+            adapter['formation_id'] = formation_id
+        return item
+    
+    def clean_niveau_sortie(self, item):
+        adapter = ItemAdapter(item)
+        niveau_sortie = adapter.get("niveau_sortie")
+        if niveau_sortie:
+            niveau_sortie = niveau_sortie.strip()
+            adapter['niveau_sortie'] = niveau_sortie
+        else:
+            adapter['niveau_sortie'] = None
+        return item
 
+    def clean_prix(self, item):
+        adapter = ItemAdapter(item)
+        prix_min = adapter.get("prix_min")
+        prix_max = adapter.get("prix_max")
+
+        # Nettoyer et extraire les chiffres des prix min et max
+        if prix_min:
+            prix_min = ''.join(filter(str.isdigit, prix_min))
+            if prix_min.isdigit():
+                prix_min = float(prix_min)
+            else:
+                prix_min = None
+        if prix_max:
+            prix_max = ''.join(filter(str.isdigit, prix_max))
+            if prix_max.isdigit():
+                prix_max = float(prix_max)
+            else:
+                prix_max = None
+
+        # Mettre à jour l'adapter avec les valeurs nettoyées
+        adapter['prix_min'] = prix_min
+        adapter['prix_max'] = prix_max
+
+        # Calculer la moyenne du prix si les deux valeurs sont présentes
+        if prix_min is not None and prix_max is not None:
+            prix = (prix_max + prix_min) / 2
+        else:
+            prix = None
+
+        adapter['prix'] = prix
+
+        return item
+        
+    def close_spider(self, spider):
+        self.session.close()
+
+class SimplonscrapyPipeline2:
+    def open_spider(self, spider):
+        username = "postgres"
+        password = ""
+        port = 5432
+        database = "postgres"
+        hostname = "localhost"
+        #connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+        connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+        engine = create_engine(connection_string)
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
+        
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+#        item = self.clean_formation_id(item)
+ #       item = self.clean_niveau_sortie(item)
+        item = self.clean_region(item)
+        item = self.clean_date_debut(item)
+     #   item = self.clean_duree(item)
+#        formation=self.session.query(Formation).filter_by(simplon_id=adapter.get('formation_id')).first()
+ #       if formation:
+  #-          formation.niveau_sortie = adapter.get('niveau_sortie')
+   #         formation.region = adapter.get('region')
+    #        formation.date_debut = adapter.get('date_debut')
+     #       formation.duree_jours = adapter.get('duree_jours')
+      #      formation.duree_heures = adapter.get('duree_jours') * 8
+       #     formation.ville = adapter.get('ville')
+        #    formation.prix = formation.prix * formation.duree_heures
+         #   self.session.commit()
+        return item
+
+    def clean_duree(self,item):
+        adapter = ItemAdapter(item)
+        duree_jours = adapter.get("date_debut")
+        if duree_jours :
+            adapter['duree_jours'] = adapter['duree_jours'].strip()
+        return item
+    
+    def clean_date_debut(self,item):
+        adapter = ItemAdapter(item)
+        date_debut = adapter.get("date_debut")
+        if date_debut:
+            adapter['date_debut'] = adapter['date_debut'].replace('\n', '').strip().replace("Début : ", '')
+        return item
+    
+    def clean_region(self,item):
+        adapter = ItemAdapter(item)
+        region = adapter.get("region")
+        if region:
+            adapter['region'] = adapter['region'].replace('\n', '').strip()
+        return item
+        
+    def clean_formation_id(self,item):
+        adapter=ItemAdapter(item)
+        formation_id=adapter.get("formation_id")
+        if formation_id:
+            formation_id = formation_id.split('/')[-1]
+            adapter['formation_id'] = formation_id
+        return item
+    
+    def clean_niveau_sortie(self, item):
+        adapter = ItemAdapter(item)
+        niveau_sortie = adapter.get("niveau_sortie")
+        if niveau_sortie:
+            niveau_sortie = niveau_sortie.strip()
+            adapter['niveau_sortie'] = niveau_sortie
+        else:
+            adapter['niveau_sortie'] = None
+        return item
+
+        
+    def close_spider(self, spider):
+        self.session.close()        
+        
 class SimplonscrapyPipeline:
-    def __init__(self):
-        # Créer une session SQLAlchemy
-        self.Session = sessionmaker(bind=engine)
+    def open_spider(self, spider):
+        username = "postgres"
+        password = ""
+        port = 5432
+        database = "postgres"
+        hostname = "localhost"
+        #connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+        connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+        engine = create_engine(connection_string)
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
         
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
@@ -39,7 +204,6 @@ class SimplonscrapyPipeline:
         item = self.clean_nsf_codes(item)
 
         # Insérer les données dans la base de données
-        session = self.Session()
         formation = Formation(
             titre=adapter.get('titre'),
             # formation_id=adapter.get('formation_id'),
@@ -53,8 +217,8 @@ class SimplonscrapyPipeline:
             # type_formation=adapter.get('type_formation'),
             ville=adapter.get('ville')
             )
-        session.add(formation)
-        session.flush()
+        self.session.add(formation)
+        self.session.flush()
 
         # Récupérer les nsf_codes
         nsf_codes=adapter.get('nsf_codes')
@@ -103,9 +267,7 @@ class SimplonscrapyPipeline:
 #                self.session.add(existe_formacode)
             formacodes.append(existe_formacode)
 
-        session.commit()
-        session.close()
-
+        self.session.commit()
         return item
     
     def clean_rncp(self, item):
@@ -271,4 +433,7 @@ class SimplonscrapyPipeline:
         else:
             adapter['nsf_codes'] = None
         return item
+    
+    def close_spider(self, spider):
+        self.session.close()
 

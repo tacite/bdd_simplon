@@ -162,6 +162,10 @@ class SimplonCrawlSpider(CrawlSpider):
     name = "simplonspider3"
     allowed_domains = ["simplon.co", "francecompetences.fr"]
     start_urls = ["https://simplon.co/notre-offre-de-formation.html"]
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            'simplonscrapy.pipelines.SimplonscrapyPipeline3': 300}
+        }
 
 
     rules = (
@@ -179,10 +183,12 @@ class SimplonCrawlSpider(CrawlSpider):
             dict: A dictionary with extracted formation details and requests for additional information.
         """
         item = SimplonscrapyItem()
-        #item = {}
 
         # Récupérer le titre de la formation
-        item['titre'] = response.xpath('//h1/text()').get().strip()
+#        item['titre'] = response.xpath('//h1/text()').get().strip()
+
+        # Extraire l'URL et obtenir l'identifiant de la formation
+        item['formation_id']=response.url
 
         # Récupérer l'identifiant RNCP
         rncp_href = response.xpath('//a[contains(text(),"RNCP")]/@href').get()
@@ -197,8 +203,22 @@ class SimplonCrawlSpider(CrawlSpider):
             item['nsf_codes'] = None
             yield item
 
-        # Extraire l'URL et obtenir l'identifiant de la formation
-        item['formation_id']=response.url
+        # Récupérer l'identifiant RS
+        rs_href = response.xpath('//a[contains(text(),"RS")]/@href').get()
+        if rs_href:
+            rs_href = response.urljoin(rs_href)
+            request = scrapy.Request(rs_href, callback=self.rs_parse_france_competences)
+            request.meta['item'] = item
+            yield request
+        else:
+            item['rs'] = None
+            item['formacodes_rs'] = None
+            item['nsf_codes'] = None
+            yield item
+
+        
+        yield item
+
 
 
     def rncp_parse_france_competences(self, response):
@@ -220,22 +240,6 @@ class SimplonCrawlSpider(CrawlSpider):
         
         yield item
     
-    # Récupérer l'identifiant RS
-        rs_href = response.xpath('//a[contains(text(),"RS")]/@href').get()
-        if rs_href:
-            rs_href = response.urljoin(rs_href)
-            request = scrapy.Request(rs_href, callback=self.rs_parse_france_competences)
-            request.meta['item'] = item
-            yield request
-        else:
-            item['rs'] = None
-            item['formacodes_rs'] = None
-            item['nsf_codes'] = None
-            yield item
-
-        # Extraire l'URL et obtenir l'identifiant de la formation
-        item['formation_id']=response.url
-
 
     def rs_parse_france_competences(self, response):
         """

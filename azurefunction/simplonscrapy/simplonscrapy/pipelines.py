@@ -82,8 +82,8 @@ class SimplonscrapyPipeline2:
         port = 5432
         database = "postgres"
         hostname = "localhost"
-        #connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
-        connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+        connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+        #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
         engine = create_engine(connection_string)
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)

@@ -8,16 +8,22 @@ Cela permettra aux salariés de comprendre quelles formations subissent une fort
 1. [Installation](#installation)
 2. [Utilisation](#utilisation)
 3. [Fonctionnalités](#fonctionnalités)
-4. [Contribution](#contribution)
-5. [Licence](#licence)
-6. [Auteurs](#auteurs)
-7. [Remerciements](#remerciements)
+4. [Auteurs](#auteurs)
+5. [Remerciements](#remerciements)
 
 ## Installation
-Télécharger tout le projet en local.
+Cloner le projet.
 
 ### Prérequis
-- Logiciels ou bibliothèques nécessaires : azure-functions / scrapy / sqlalchemy / python-dotenv / psycopg2-binary / fastapi / uvicorn
+- Logiciels ou bibliothèques nécessaires :
+    - azure-functions
+    - scrapy
+    - sqlalchemy
+    - python-dotenv
+    - psycopg2-binary
+    - pytest
+    - fastapi
+    - uvicorn
 - Version de Python : 3.12.
 
 ### Étapes
@@ -38,6 +44,12 @@ Télécharger tout le projet en local.
 ## Utilisation
 Instructions sur comment utiliser le projet après l'installation. Inclure des exemples de code ou des commandes.
 
-### Exemple
-```bash
-python main.py  # Pour exécuter le script principal
+## Fonctionnalités
+
+## Auteurs
+David Tacite (tacite)
+Safae Tabet (sol294)
+Hélène Dubourg (hesolean)
+
+## Remerciements
+Nous tenons à remercier nos formateurs qui nous ont accompagnés dans ce projet : Charles Beniac, Salsabil Zaghdoudi et Jérémy Vangansberg.

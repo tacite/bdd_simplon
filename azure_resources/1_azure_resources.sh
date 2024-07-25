@@ -54,7 +54,7 @@ if ! az postgres flexible-server firewall-rule show --resource-group $RESOURCE_G
       --name $SERVER_NAME \
       --rule-name AllowAll \
       --start-ip-address 0.0.0.0 \
-      --end-ip-address 0.0.0.0
+      --end-ip-address 255.255.255.255
 fi
 
 # Wait for the PostgreSQL server to be available and retrieve "SERVER_URL="

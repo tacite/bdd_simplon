@@ -7,6 +7,7 @@
 # useful for handling different item types with a single interface
 import os
 import sys
+from dotenv import load_dotenv
 from itemadapter import ItemAdapter
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -23,6 +24,17 @@ class SimplonscrapyPipeline1:
         port = 5432
         database = "postgres"
         hostname = "localhost"
+        # # Load environment variables from the .env file located three directories above
+        # env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
+        # load_dotenv(env_path)
+        
+        # # Retrieve connection string from environment variables
+        # connection_string = os.getenv("DATABASE_URL")
+        
+        # if not connection_string:
+        #     spider.logger.error("Database connection string is not set in the .env file")
+        #     return
+        
         connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
         #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
         engine = create_engine(connection_string)

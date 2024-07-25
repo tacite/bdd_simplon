@@ -37,22 +37,6 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         result = subprocess.run(['python', 'main.py'], capture_output=True, text=True, check=True)
         download_file = os.listdir()
         logging.info(f"Le telechargement du fichier est fait : {download_file}")
-        
-        # # Execute fill_database.py
-        # logging.info("Exécution de fill_database.py")
-        # result = subprocess.run("python fill_database.py", shell=True)
-        # logging.info(f"fill_database.py pas exécuté avant while (code de retour {result.stdout})")
-
-        # # Wait until finish to execute the rest
-        # while result.returncode!=0:
-        #     logging.info(f"fill_database.py a terminé avec des erreurs (code de retour {result.returncode})")
-        #     time.sleep(60)
-        # logging.info("db faite")
-
-        # # Delete the file
-        # logging.info("Supprime le fichier")
-        # result = subprocess.run('rm test.csv', shell=True)
-        # logging.info("suppression du fichier a la fin")
 
         # Change directory for scraping
         scrapy_dir = "/home/site/wwwroot/simplonscrapy"
@@ -66,8 +50,9 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
             return
 
         # List of the spider to run
-        spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
-        
+        spiders = ['simplonspider']
+        # spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
+
         for spider in spiders:
             logging.info(f'Starting spider: {spider}')
             result = subprocess.run(['scrapy', 'crawl', spider], 

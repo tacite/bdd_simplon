@@ -36,7 +36,7 @@ Télécharger tout le projet en local.
 
 ## Utilisation
 Instructions sur comment utiliser le projet après l'installation. Inclure des exemples de code ou des commandes.
-
+Consulter la documentation : https://tacite.github.io/bdd_simplon/
 ## Fonctionnalités
 
 ## Auteurs

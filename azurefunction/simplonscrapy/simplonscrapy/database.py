@@ -1,5 +1,17 @@
 # database.py
 
+"""
+Module de connexion à la base de données et de configuration des modèles SQLAlchemy.
+
+Ce module se connecte à une base de données PostgreSQL en utilisant SQLAlchemy, charge les variables d'environnement 
+pour les informations de connexion et configure les modèles de base de données.
+
+Dépendances :
+- sqlalchemy
+- dotenv
+- os
+"""
+
 from sqlalchemy import create_engine, Column, Integer, String, Float, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker

@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Ensemble des lignes de commande de azure CLI pour créer les ressources :
+#   groupe de ressources
+#   serveur flexible
+#   base de données
+#   conteneur avec son environnement
+#   stockage
+#   fonction
+# Enregistrement des variables dans un dotenv accessible pour les autres parties du code
+
 # ___VARIABLES___
 
 # Ressource Group

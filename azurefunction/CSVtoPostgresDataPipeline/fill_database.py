@@ -2,26 +2,38 @@ import logging
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker, Session
 from collections import OrderedDict
-from typing import Optional
+from typing import Optional, List
 import sys
 import os
 import csv
 from math import ceil
 
-# Add the project root to the PYTHONPATH
+# Ajouter le répertoire racine du projet au PYTHONPATH
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.parents import Formation, Certification, Formacode, Nsf, Referentiel
 from models.common_imports import Base
 
-# Récupérer les informations de connexion à la base de données depuis les variables d'environnement
+# Informations de connexion à la base de données
 username = "postgres"
 password = ""
 port = 5432
 database = "postgres"
 hostname = "localhost"
 
-# fonction qui cherche dans la base de donnée si l'objet obj existe selon les filtres mis en arguments variadiques dans le kwargs
-def exists(session: Session, obj: object, **kwargs) -> Optional['obj']:
+def exists(session: Session, obj: object, **kwargs) -> Optional[object]:
+    """
+    ## exists()
+
+    Vérifie si un objet existe dans la base de données selon les filtres spécifiés.
+
+    Args:
+        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+        obj (object): Le modèle SQLAlchemy à interroger.
+        **kwargs: Les filtres de recherche sous forme de paires clé-valeur.
+
+    Returns:
+        Optional[object]: L'objet trouvé s'il existe, sinon None.
+    """
     db_obj = session.scalar(select(obj).filter_by(**kwargs))
     if db_obj is not None:
         return db_obj
@@ -30,6 +42,12 @@ def exists(session: Session, obj: object, **kwargs) -> Optional['obj']:
 
 
 def fill_formacode(session: Session) -> None:
+    """
+    Remplit la table Formacode avec les données du fichier CSV.
+
+    Args:
+        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+    """
     logging.info('fill_formacode début')
     code_list = [str]    
     with open("data/V12_V13.xls", newline='', encoding='windows-1252') as file:
@@ -43,21 +61,38 @@ def fill_formacode(session: Session) -> None:
         session.commit()
     logging.info('fill_formacode fin')
 
-        
-def fill_certification(row: OrderedDict, session: Session) -> Certification:
-    logging.info('fill_certification début')
 
+def fill_certification(row: OrderedDict, session: Session) -> Certification:
+    """
+    Crée ou récupère une instance de Certification basée sur les données fournies.
+
+    Args:
+        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
+        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+
+    Returns:
+        Certification: L'objet Certification créé ou récupéré.
+    """
+    logging.info('fill_certification début')
     certif = exists(session, Certification, code=row['code_certifinfo'])
     if not isinstance(certif, Certification):
         certif = Certification(code=row['code_certifinfo'], designation=row['intitule_certification'])
     logging.info('fill_certification fin')
-
     return certif
 
-def fill_nsf(row: OrderedDict, session: Session) -> Nsf:
-    logging.info('fill_nsf début')
+def fill_nsf(row: OrderedDict, session: Session) -> List[Nsf]:
+    """
+    Crée ou récupère les instances de Nsf basées sur les données fournies.
 
-    nsfs: list[Nsf] = []
+    Args:
+        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
+        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+
+    Returns:
+        List[Nsf]: La liste des objets Nsf créés ou récupérés.
+    """
+    logging.info('fill_nsf début')
+    nsfs: List[Nsf] = []
     for number in range(1, 4):
         code = row[f"code_nsf_{number}"]
         if code:
@@ -66,25 +101,41 @@ def fill_nsf(row: OrderedDict, session: Session) -> Nsf:
                 nsf = Nsf(code=row[f"code_nsf_{number}"], designation=row[f"libelle_nsf_{number}"])
             nsfs.append(nsf)
     logging.info('fill_nsf fin')
-
     return nsfs
 
-def fill_formacodes(row: OrderedDict, session: Session) -> list[Formacode]:
-    logging.info('fill_formacodes début')
+def fill_formacodes(row: OrderedDict, session: Session) -> List[Formacode]:
+    """
+    Crée ou récupère les instances de Formacode basées sur les données fournies.
 
-    formacodes: list[Formacode] = []
+    Args:
+        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
+        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+
+    Returns:
+        List[Formacode]: La liste des objets Formacode créés ou récupérés.
+    """
+    logging.info('fill_formacodes début')
+    formacodes: List[Formacode] = []
     for number in range(1, 6):
         code = row[f"code_formacode_{number}"]
         if code:
             formacode = exists(session, Formacode, code=code)
             formacodes.append(formacode)
     logging.info('fill_formacodes fin')
-
     return formacodes
 
 def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
-    logging.info('fill_referentiel début')
+    """
+    Crée ou récupère une instance de Referentiel basée sur les données fournies.
 
+    Args:
+        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
+        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+
+    Returns:
+        Referentiel: L'objet Referentiel créé ou récupéré.
+    """
+    logging.info('fill_referentiel début')
     type_referentiel = row['type_referentiel']
     codec = ""
     match type_referentiel:
@@ -101,14 +152,18 @@ def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
             referentiel.formacode.append(formacode)
         session.add(referentiel)
     logging.info('fill_referentiel fin')
-
     return referentiel
 
 def fill_database() -> None:
-    logging.info('fill_database début')
+    """
+    Remplit la base de données avec les données provenant du fichier CSV.
 
-    connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
-    #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+    Cette fonction se connecte à la base de données, vide les tables existantes, recrée les tables et remplit
+    les tables avec les données du fichier CSV.
+    """
+    logging.info('fill_database début')
+    connection_string = "postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
+    # connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
     engine = create_engine(connection_string)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -125,10 +180,17 @@ def fill_database() -> None:
                 exit()
             count += 1
             heures = int(row['nombre_heures_total_mean'])
-            jours = ceil(heures/8)
-            formation = Formation(titre=row['intitule_formation'], region=row['nom_region'], code_region=row['code_region'],
-                                niveau_sortie=row['libelle_niveau_sortie_formation'], source_info="france_competence",
-                                duree_heures=heures, duree_jours=jours, prix=row['frais_ttc_tot_mean'])
+            jours = ceil(heures / 8)
+            formation = Formation(
+                titre=row['intitule_formation'], 
+                region=row['nom_region'], 
+                code_region=row['code_region'],
+                niveau_sortie=row['libelle_niveau_sortie_formation'], 
+                source_info="france_competence",
+                duree_heures=heures, 
+                duree_jours=jours, 
+                prix=row['frais_ttc_tot_mean']
+            )
             session.add(formation)
             session.flush()
             certif = fill_certification(row, session)

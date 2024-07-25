@@ -48,7 +48,7 @@ class SimplonspiderSpider(CrawlSpider):
         Yields:
             dict: A dictionary with extracted formation details.
         """
-        item = {}
+        item = SimplonscrapyItem()
 
         # Récupérer le titre de la formation
         item['titre'] = response.xpath('//h1/text()').get()

@@ -119,7 +119,7 @@ def fill_database() -> None:
     count = 0
     with open('test.csv') as csv_file:
         for row in csv.DictReader(csv_file, delimiter=';'):
-            if count == 1000:
+            if count == 3000:
                 session.commit()
                 session.close()       
                 exit()

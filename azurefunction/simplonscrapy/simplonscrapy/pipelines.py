@@ -268,7 +268,7 @@ class SimplonscrapyPipeline3:
         nsf_codes = adapter.get("nsf_codes")
         if nsf_codes:
             nsf_codes_cleaned = [nsf.replace(':', '').strip() for nsf in nsf_codes]
-            adapter['nsf_codes'] = ', '.join(nsf_codes_cleaned)
+            adapter['nsf_codes'] = nsf_codes_cleaned
         else:
             adapter['nsf_codes'] = None
         return item

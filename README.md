@@ -37,8 +37,13 @@ Télécharger tout le projet en local.
 ## Utilisation
 Instructions sur comment utiliser le projet après l'installation. Inclure des exemples de code ou des commandes.
 Consulter la documentation : https://tacite.github.io/bdd_simplon/
+
 ## Fonctionnalités
 
 ## Auteurs
+- David Tacite (tacite)
+- Safae Tabet (sol294)
+- Hélène Dubourg (hesolean) 
 
 ## Remerciements
+Nous tenons à remercier nos formateurs qui nous ont accompagnés tout au long du projet : Charles Beniac, Salsabil Zaghdoudi et Jérémy Vangansberg.

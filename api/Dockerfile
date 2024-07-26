@@ -10,4 +10,8 @@ COPY . /app/
 
 EXPOSE 5000
 
-CMD ["uvicorn","main:app"]
+CMD ["uvicorn","main:app", "--host", "0.0.0.0", "--port", "5000", "--reload"]
+
+
+# docker build -t monimage:latest .
+# docker run --rm -d --env-file .env -p 5000:5000 -v $(pwd):/app monimage

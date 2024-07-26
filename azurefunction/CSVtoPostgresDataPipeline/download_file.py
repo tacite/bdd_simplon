@@ -5,11 +5,13 @@ FILE_OUTPUT = "test.csv"
 
 def download_file():
     """
-    Télécharge un fichier CSV depuis une API publique et le sauvegarde localement.
+    ## download_file()
+    
+    Downloads a CSV file from a public API and saves it locally.
 
-    La fonction effectue une requête HTTP GET à l'API pour obtenir des données sous forme de CSV.
-    Les données sont filtrées selon les paramètres fournis dans l'URL de la requête.
-    Le fichier CSV est ensuite sauvegardé localement avec le nom spécifié dans `FILE_OUTPUT`.
+    The function makes an HTTP GET request to the API to obtain data in CSV format.
+    The data is filtered according to the parameters provided in the request URL.
+    The CSV file is then saved locally with the name specified in `FILE_OUTPUT`.
     """
     
     # URL de l'API pour télécharger les données

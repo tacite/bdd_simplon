@@ -1,103 +1,218 @@
-# Define here the models for your spider middleware
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-
 from scrapy import signals
-
-# useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
-
 class SimplonscrapySpiderMiddleware:
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the spider middleware does not modify the
-    # passed objects.
+    """
+    ## SimplonscrapySpiderMiddleware()
+
+    Middleware for processing responses and exceptions at the spider level.
+
+    This class allows for handling responses and exceptions that occur during
+    the processing of responses by the spider, as well as modifying start requests.
+    """
 
     @classmethod
     def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
+        """
+        ## from_crawler()
+
+        Creates an instance of SimplonscrapySpiderMiddleware from the crawler.
+
+        Connects the `spider_opened` signal to the `spider_opened` method.
+
+        Args:
+            crawler (scrapy.crawler.Crawler): The Scrapy crawler object.
+
+        Returns:
+            SimplonscrapySpiderMiddleware: An instance of the middleware.
+        """
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_spider_input(self, response, spider):
-        # Called for each response that goes through the spider
-        # middleware and into the spider.
+        """
+        ## process_spider_input()
 
-        # Should return None or raise an exception.
+        Processing of each response before it enters the spider.
+
+        This method can be used to modify the response before it is processed by the spider.
+
+        Args:
+            response (scrapy.http.Response): The response of the request.
+            spider (scrapy.Spider): The spider instance that processes the response.
+
+        Returns:
+            None: To continue processing, or raise an exception to interrupt processing.
+        """
         return None
 
     def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
-        # it has processed the response.
+        """
+        ## process_spider_output()
 
-        # Must return an iterable of Request, or item objects.
+        Processing of results returned by the spider.
+
+        This method can be used to modify the items or requests before they are sent
+        to the item pipeline.
+
+        Args:
+            response (scrapy.http.Response): The response processed by the spider.
+            result (iterable): The items or requests returned by the spider.
+            spider (scrapy.Spider): The spider instance that returns the results.
+
+        Yields:
+            scrapy.Request or dict: The items or requests to send to the item pipeline.
+        """
         for i in result:
             yield i
 
     def process_spider_exception(self, response, exception, spider):
-        # Called when a spider or process_spider_input() method
-        # (from other spider middleware) raises an exception.
+        """
+        ## process_spider_exception()
 
-        # Should return either None or an iterable of Request or item objects.
+        Handling of exceptions raised by the spider or the `process_spider_input` method.
+
+        This method can be used to handle exceptions and possibly return requests
+        to be retried.
+
+        Args:
+            response (scrapy.http.Response): The response when an exception is raised.
+            exception (Exception): The raised exception.
+            spider (scrapy.Spider): The spider instance that raised the exception.
+
+        Returns:
+            None: To continue processing the exception or an iterable of requests or items.
+        """
         pass
 
     def process_start_requests(self, start_requests, spider):
-        # Called with the start requests of the spider, and works
-        # similarly to the process_spider_output() method, except
-        # that it doesn’t have a response associated.
+        """
+        ## process_start_requests()
 
-        # Must return only requests (not items).
+        Processing of the spider's start requests.
+
+        This method can be used to modify the start requests before they are
+        sent to the downloader middleware.
+
+        Args:
+            start_requests (iterable): The spider's start requests.
+            spider (scrapy.Spider): The spider instance that starts executing the requests.
+
+        Yields:
+            scrapy.Request: The processed start requests.
+        """
         for r in start_requests:
             yield r
 
     def spider_opened(self, spider):
+        """
+        ## spider_opened()
+
+        Handling of the `spider_opened` signal.
+
+        This method is called when the spider is opened and can be used to initialize
+        resources or perform configuration tasks.
+
+        Args:
+            spider (scrapy.Spider): The spider instance that was opened.
+        """
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
 class SimplonscrapyDownloaderMiddleware:
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the downloader middleware does not modify the
-    # passed objects.
+    """
+    ## SimplonscrapyDownloaderMiddleware()
+
+    Middleware for processing requests and responses at the downloader level.
+
+    This class allows for handling requests and responses as they pass through the downloader middleware,
+    as well as managing exceptions that occur during the download.
+    """
 
     @classmethod
     def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
+        """
+        ## from_crawler()
+
+        Creates an instance of SimplonscrapyDownloaderMiddleware from the crawler.
+
+        Connects the `spider_opened` signal to the `spider_opened` method.
+
+        Args:
+            crawler (scrapy.crawler.Crawler): The Scrapy crawler object.
+
+        Returns:
+            SimplonscrapyDownloaderMiddleware: An instance of the middleware.
+        """
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_request(self, request, spider):
-        # Called for each request that goes through the downloader
-        # middleware.
+        """
+        ## process_request()
 
-        # Must either:
-        # - return None: continue processing this request
-        # - or return a Response object
-        # - or return a Request object
-        # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
+        Processing of requests before they are sent to the downloader.
+
+        This method can be used to modify the requests before they are sent to the downloader.
+
+        Args:
+            request (scrapy.http.Request): The request to process.
+            spider (scrapy.Spider): The spider instance that issued the request.
+
+        Returns:
+            None: To continue processing the request, or a Response, Request object, or raise IgnoreRequest.
+        """
         return None
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
+        """
+        ## process_response()
 
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
+        Processing of responses returned by the downloader.
+
+        This method can be used to modify the responses before they are sent to the spider.
+
+        Args:
+            request (scrapy.http.Request): The request associated with the response.
+            response (scrapy.http.Response): The response to process.
+            spider (scrapy.Spider): The spider instance that receives the response.
+
+        Returns:
+            scrapy.http.Response or scrapy.http.Request: The processed response or a new request.
+        """
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
+        """
+        ## process_exception()
 
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
+        Handling of exceptions raised during the download or processing of requests.
+
+        This method can be used to handle exceptions and possibly return requests
+        to be retried.
+
+        Args:
+            request (scrapy.http.Request): The request when an exception is raised.
+            exception (Exception): The raised exception.
+            spider (scrapy.Spider): The spider instance that raised the exception.
+
+        Returns:
+            None: To continue processing the exception or an iterable of requests or responses.
+        """
         pass
 
     def spider_opened(self, spider):
+        """
+        ## spider_opened()
+
+        Handling of the `spider_opened` signal.
+
+        This method is called when the spider is opened and can be used to initialize
+        resources or perform configuration tasks.
+
+        Args:
+            spider (scrapy.Spider): The spider instance that was opened.
+        """
         spider.logger.info('Spider opened: %s' % spider.name)

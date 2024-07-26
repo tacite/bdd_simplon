@@ -1,8 +1,8 @@
 """
-Module définissant les modèles pour les items extraits avec Scrapy.
+Module defining the models for items extracted with Scrapy.
 
-Ce module contient la définition de la classe `SimplonscrapyItem` qui spécifie les champs des items à extraire
-à partir des pages web lors du processus de scraping.
+This module contains the definition of the `SimplonscrapyItem` class, which specifies the fields of items to extract
+from web pages during the scraping process.
 
 Documentation:
 https://docs.scrapy.org/en/latest/topics/items.html
@@ -12,58 +12,60 @@ import scrapy
 
 class SimplonscrapyItem(scrapy.Item):
     """
-    Classe représentant un item extrait avec Scrapy.
+    ## SimplonscrapyItem()
 
-    Cette classe définit les différents champs que Scrapy extrait à partir des pages web cibles. Chaque champ
-    correspond à une information spécifique que l'on souhaite extraire.
+    Class representing an item extracted with Scrapy.
+
+    This class defines the various fields that Scrapy extracts from the target web pages. Each field
+    corresponds to a specific piece of information to be extracted.
     """
     
     # Define the fields for your item here:
     
     titre = scrapy.Field()
-    """str: Le titre de la formation."""
+    """str: The title of the training."""
     
     rncp = scrapy.Field()
-    """str: Le code RNCP (Répertoire National des Certifications Professionnelles)."""
+    """str: The RNCP (Répertoire National des Certifications Professionnelles) code."""
     
     rs = scrapy.Field()
-    """str: Le code RS (Répertoire Spécifique)."""
+    """str: The RS (Répertoire Spécifique) code."""
     
     formation_id = scrapy.Field()
-    """str: L'identifiant unique de la formation."""
+    """str: The unique identifier of the training."""
     
     niveau_sortie = scrapy.Field()
-    """str: Le niveau de sortie de la formation."""
+    """str: The level of completion of the training."""
     
     prix = scrapy.Field()
-    """float: Le prix de la formation."""
+    """float: The price of the training."""
     
     prix_min = scrapy.Field()
-    """float: Le prix minimum de la formation."""
+    """float: The minimum price of the training."""
     
     prix_max = scrapy.Field()
-    """float: Le prix maximum de la formation."""
+    """float: The maximum price of the training."""
     
     region = scrapy.Field()
-    """str: La région où la formation est dispensée."""
+    """str: The region where the training is provided."""
     
     date_debut = scrapy.Field()
-    """str: La date de début de la formation."""
+    """str: The start date of the training."""
     
     duree_jours = scrapy.Field()
-    """int: La durée de la formation en jours."""
+    """int: The duration of the training in days."""
     
     # type_formation = scrapy.Field()
-    # """str: Le type de formation (commenté)."""
+    # """str: The type of training (commented out)."""
     
     ville = scrapy.Field()
-    """str: La ville où la formation est dispensée."""
+    """str: The city where the training is provided."""
     
     formacodes_rs = scrapy.Field()
-    """list: Les formacodes associés au code RS."""
+    """list: The formacodes associated with the RS code."""
     
     formacodes_rncp = scrapy.Field()
-    """list: Les formacodes associés au code RNCP."""
+    """list: The formacodes associated with the RNCP code."""
     
     nsf_codes = scrapy.Field()
-    """list: Les codes NSF (Nomenclature des Spécialités de Formation)."""
+    """list: The NSF (Nomenclature des Spécialités de Formation) codes."""

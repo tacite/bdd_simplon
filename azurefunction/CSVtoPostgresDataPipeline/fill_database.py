@@ -24,15 +24,15 @@ def exists(session: Session, obj: object, **kwargs) -> Optional[object]:
     """
     ## exists()
 
-    Vérifie si un objet existe dans la base de données selon les filtres spécifiés.
+    Checks if an object exists in the database according to specified filters.
 
     Args:
-        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
-        obj (object): Le modèle SQLAlchemy à interroger.
-        **kwargs: Les filtres de recherche sous forme de paires clé-valeur.
+        session (Session): The SQLAlchemy session used to interact with the database.
+        obj (object): The SQLAlchemy model to query.
+        **kwargs: Search filters as key-value pairs.
 
     Returns:
-        Optional[object]: L'objet trouvé s'il existe, sinon None.
+        Optional[object]: The found object if it exists, otherwise None.
     """
     db_obj = session.scalar(select(obj).filter_by(**kwargs))
     if db_obj is not None:
@@ -43,10 +43,12 @@ def exists(session: Session, obj: object, **kwargs) -> Optional[object]:
 
 def fill_formacode(session: Session) -> None:
     """
-    Remplit la table Formacode avec les données du fichier CSV.
+    ## fill_formacode()
+
+    Fills the Formacode table with data from the CSV file.
 
     Args:
-        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+        session (Session): The SQLAlchemy session used to interact with the database.
     """
     logging.info('fill_formacode début')
     code_list = [str]    
@@ -64,14 +66,16 @@ def fill_formacode(session: Session) -> None:
 
 def fill_certification(row: OrderedDict, session: Session) -> Certification:
     """
-    Crée ou récupère une instance de Certification basée sur les données fournies.
+    ## fill_certification()
+
+    Creates or retrieves a Certification instance based on the provided data.
 
     Args:
-        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
-        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+        row (OrderedDict): The CSV row data as a dictionary.
+        session (Session): The SQLAlchemy session used to interact with the database.
 
     Returns:
-        Certification: L'objet Certification créé ou récupéré.
+        Certification: The created or retrieved Certification object.
     """
     logging.info('fill_certification début')
     certif = exists(session, Certification, code=row['code_certifinfo'])
@@ -82,14 +86,16 @@ def fill_certification(row: OrderedDict, session: Session) -> Certification:
 
 def fill_nsf(row: OrderedDict, session: Session) -> List[Nsf]:
     """
-    Crée ou récupère les instances de Nsf basées sur les données fournies.
+    ## fill_nsf()
+
+    Creates or retrieves Nsf instances based on the provided data.
 
     Args:
-        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
-        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+        row (OrderedDict): The CSV row data as a dictionary.
+        session (Session): The SQLAlchemy session used to interact with the database.
 
     Returns:
-        List[Nsf]: La liste des objets Nsf créés ou récupérés.
+        List[Nsf]: The list of created or retrieved Nsf objects.
     """
     logging.info('fill_nsf début')
     nsfs: List[Nsf] = []
@@ -105,14 +111,16 @@ def fill_nsf(row: OrderedDict, session: Session) -> List[Nsf]:
 
 def fill_formacodes(row: OrderedDict, session: Session) -> List[Formacode]:
     """
-    Crée ou récupère les instances de Formacode basées sur les données fournies.
+    ## fill_formacodes()
+
+    Creates or retrieves Formacode instances based on the provided data.
 
     Args:
-        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
-        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+        row (OrderedDict): The CSV row data as a dictionary.
+        session (Session): The SQLAlchemy session used to interact with the database.
 
     Returns:
-        List[Formacode]: La liste des objets Formacode créés ou récupérés.
+        List[Formacode]: The list of created or retrieved Formacode objects.
     """
     logging.info('fill_formacodes début')
     formacodes: List[Formacode] = []
@@ -126,14 +134,16 @@ def fill_formacodes(row: OrderedDict, session: Session) -> List[Formacode]:
 
 def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
     """
-    Crée ou récupère une instance de Referentiel basée sur les données fournies.
+    ## fill_referentiel()
+
+    Creates or retrieves a Referentiel instance based on the provided data.
 
     Args:
-        row (OrderedDict): Les données de la ligne du fichier CSV sous forme de dictionnaire.
-        session (Session): La session SQLAlchemy utilisée pour interagir avec la base de données.
+        row (OrderedDict): The CSV row data as a dictionary.
+        session (Session): The SQLAlchemy session used to interact with the database.
 
     Returns:
-        Referentiel: L'objet Referentiel créé ou récupéré.
+        Referentiel: The created or retrieved Referentiel object.
     """
     logging.info('fill_referentiel début')
     type_referentiel = row['type_referentiel']
@@ -156,10 +166,12 @@ def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
 
 def fill_database() -> None:
     """
-    Remplit la base de données avec les données provenant du fichier CSV.
+    ## fill_database() 
+    
+    Fills the database with data from the CSV file.
 
-    Cette fonction se connecte à la base de données, vide les tables existantes, recrée les tables et remplit
-    les tables avec les données du fichier CSV.
+    This function connects to the database, clears existing tables, recreates the tables,
+    and populates the tables with data from the CSV file.
     """
     logging.info('fill_database début')
     connection_string = "postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"

@@ -6,20 +6,33 @@ import logging
 
 app = func.FunctionApp()
 
-
 # Create function with this code to generate Dockerfile, host.json and .*ignore
 # func init azurefunction --worker-runtime python --docker
 
 # pip freeze to generate requirements.txt + add dependencies
 
-# Change schedule to "7.00:00:00" to scrap every 7 days
-# True to run function at the start and check
+# Change schedule to "7.00:00:00" to run every 7 days
+# True to run function at startup and check
 @app.function_name(name="scrapytimer")
 @app.timer_trigger(schedule="00:30:00", 
                 arg_name="mytimer",
                 run_on_startup=True,
                 use_monitor=True) 
 def scrapy_trigger(mytimer: func.TimerRequest) -> None:
+    """
+    ## scrapy_trigger()
+
+    Azure Function triggered by a timer to run Scrapy spiders.
+
+    This function performs the following steps:
+    - Changes the working directory to where the CSV to Postgres data pipeline script is located.
+    - Runs a Python script (main.py) to process data.
+    - Changes the working directory to where the Scrapy spiders are located.
+    - Runs multiple Scrapy spiders and logs their output and errors.
+
+    Args:
+        mytimer (func.TimerRequest): The timer request object from Azure Functions.
+    """
     if mytimer.past_due:
         logging.info('The timer is past due!')
     logging.info('Python timer trigger function ran')
@@ -27,7 +40,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
     try:
         csvpostgres_dir = "/home/site/wwwroot/CSVtoPostgresDataPipeline"
         
-        # check if the directory exists before changing to it
+        # Check if the directory exists before changing to it
         if os.path.exists(csvpostgres_dir) and os.path.isdir(csvpostgres_dir):
             os.chdir(csvpostgres_dir)
             logging.info(f'Changed directory to {csvpostgres_dir}')
@@ -36,23 +49,23 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
         
         result = subprocess.run(['python', 'main.py'], capture_output=True, text=True, check=True)
         download_file = os.listdir()
-        logging.info(f"Le telechargement du fichier est fait : {download_file}")
+        logging.info(f"File download completed: {download_file}")
         
         # # Execute fill_database.py
-        # logging.info("Exécution de fill_database.py")
+        # logging.info("Executing fill_database.py")
         # result = subprocess.run("python fill_database.py", shell=True)
-        # logging.info(f"fill_database.py pas exécuté avant while (code de retour {result.stdout})")
+        # logging.info(f"fill_database.py not executed before while (return code {result.stdout})")
 
         # # Wait until finish to execute the rest
-        # while result.returncode!=0:
-        #     logging.info(f"fill_database.py a terminé avec des erreurs (code de retour {result.returncode})")
+        # while result.returncode != 0:
+        #     logging.info(f"fill_database.py finished with errors (return code {result.returncode})")
         #     time.sleep(60)
-        # logging.info("db faite")
+        # logging.info("Database update complete")
 
         # # Delete the file
-        # logging.info("Supprime le fichier")
+        # logging.info("Deleting file")
         # result = subprocess.run('rm test.csv', shell=True)
-        # logging.info("suppression du fichier a la fin")
+        # logging.info("File deletion complete")
 
         # Change directory for scraping
         scrapy_dir = "/home/site/wwwroot/simplonscrapy"
@@ -65,7 +78,7 @@ def scrapy_trigger(mytimer: func.TimerRequest) -> None:
             logging.error(f'Directory {scrapy_dir} does not exist or is not a directory')
             return
 
-        # List of the spider to run
+        # List of spiders to run
         spiders = ['simplonspider', 'simplonspider2', 'simplonspider3']
         
         for spider in spiders:

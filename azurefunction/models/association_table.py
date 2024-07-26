@@ -2,14 +2,16 @@ from models.common_imports import Base, ForeignKey, Mapped, mapped_column
 
 class Certification_Formation(Base):
     """
-    Table de relation entre les certifications et les formations.
+    ## Certification_Formation()
 
-    Cette table crée une relation many-to-many entre les formations et les certifications,
-    en utilisant les identifiants des certifications et des formations comme clés primaires.
+    Relationship table between certifications and formations.
 
-    Attributs:
-        code_certification (Mapped[int]): Clé étrangère référencant le code de la certification dans la table 'certification'.
-        id_formation (Mapped[int]): Clé étrangère référencant l'identifiant de la formation dans la table 'formation'.
+    This table creates a many-to-many relationship between formations and certifications,
+    using the certification codes and formation IDs as primary keys.
+
+    Attributes:
+        code_certification (Mapped[int]): Foreign key referencing the certification code in the 'certification' table.
+        id_formation (Mapped[int]): Foreign key referencing the formation ID in the 'formation' table.
     """
     __tablename__ = "certification_formation"
 
@@ -18,14 +20,16 @@ class Certification_Formation(Base):
         
 class Nsf_Formation(Base):
     """
-    Table de relation entre les NSF (Nomenclature des Sciences et Formations) et les formations.
+    ## Nsf_Formation()
 
-    Cette table crée une relation many-to-many entre les formations et les NSF,
-    en utilisant les codes NSF et les identifiants de formation comme clés primaires.
+    Relationship table between NSF (Nomenclature of Sciences and Formations) and formations.
 
-    Attributs:
-        code_nsf (Mapped[int]): Clé étrangère référencant le code NSF dans la table 'nsf'.
-        id_formation (Mapped[int]): Clé étrangère référencant l'identifiant de la formation dans la table 'formation'.
+    This table creates a many-to-many relationship between formations and NSF,
+    using the NSF codes and formation IDs as primary keys.
+
+    Attributes:
+        code_nsf (Mapped[int]): Foreign key referencing the NSF code in the 'nsf' table.
+        id_formation (Mapped[int]): Foreign key referencing the formation ID in the 'formation' table.
     """
     __tablename__ = "nsf_formation"
     
@@ -34,14 +38,16 @@ class Nsf_Formation(Base):
     
 class Referentiel_Formation(Base):
     """
-    Table de relation entre les référentiels et les formations.
+    ## Referentiel_Formation()
 
-    Cette table crée une relation many-to-many entre les formations et les référentiels,
-    en utilisant les identifiants de référentiel et de formation comme clés primaires.
+    Relationship table between referentials and formations.
 
-    Attributs:
-        id_referentiel (Mapped[int]): Clé étrangère référencant l'identifiant du référentiel dans la table 'referentiel'.
-        id_formation (Mapped[int] = mapped_column(ForeignKey("formation.id"), primary_key=True)
+    This table creates a many-to-many relationship between formations and referentials,
+    using the referential IDs and formation IDs as primary keys.
+
+    Attributes:
+        id_referentiel (Mapped[int]): Foreign key referencing the referential ID in the 'referentiel' table.
+        id_formation (Mapped[int]): Foreign key referencing the formation ID in the 'formation' table.
     """
     __tablename__ = "referentiel_formation"
     
@@ -50,14 +56,16 @@ class Referentiel_Formation(Base):
     
 class Referentiel_Formacode(Base):
     """
-    Table de relation entre les référentiels et les formacodes.
+    ## Referentiel_Formacode()
+    
+    Relationship table between referentials and formacodes.
 
-    Cette table crée une relation many-to-many entre les référentiels et les formacodes,
-    en utilisant les identifiants de référentiel et les codes formacodes comme clés primaires.
+    This table creates a many-to-many relationship between referentials and formacodes,
+    using the referential IDs and formacode codes as primary keys.
 
-    Attributs:
-        id_referentiel (Mapped[int]): Clé étrangère référencant l'identifiant du référentiel dans la table 'referentiel'.
-        code_formacode (Mapped[int]): Clé étrangère référencant le code formacode dans la table 'formacode'.
+    Attributes:
+        id_referentiel (Mapped[int]): Foreign key referencing the referential ID in the 'referentiel' table.
+        code_formacode (Mapped[int]): Foreign key referencing the formacode code in the 'formacode' table.
     """
     __tablename__ = "referentiel_formacode"
     

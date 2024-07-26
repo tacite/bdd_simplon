@@ -8,6 +8,8 @@ from simplonscrapy.items import SimplonscrapyItem
 # 1er spider:
 class SimplonspiderSpider(CrawlSpider):
     """
+    ## SimplonspiderSpider()
+
     A Scrapy spider that scrapes Simplon website for formation details.
     """
         
@@ -21,6 +23,8 @@ class SimplonspiderSpider(CrawlSpider):
 
     def start_requests(self):
         """
+        ## start_requests()
+
         Generates initial requests to start scraping using the URLs defined in `start_urls`.
         Uses Playwright to handle JavaScript content.
         """
@@ -29,6 +33,8 @@ class SimplonspiderSpider(CrawlSpider):
 
     def parse_item(self, response):
         """
+        ## parse_item()
+
         Parses the formation details from the response.
         
         Extracts:
@@ -80,6 +86,8 @@ class SimplonspiderSpider(CrawlSpider):
 # 2ème spider :
 class Simplonspider2Spider(CrawlSpider):
     """
+    ## Simplonspider2Spider()
+
     A Scrapy spider that scrapes Simplon website for session details.
     """
     name = "simplonspider2"
@@ -92,6 +100,8 @@ class Simplonspider2Spider(CrawlSpider):
 
     def start_requests(self):
         """
+        ## start_requests()
+
         Generates initial requests to start scraping using the URLs defined in `start_urls`.
         Uses Playwright to handle JavaScript content.
         """
@@ -147,6 +157,8 @@ class Simplonspider2Spider(CrawlSpider):
 #3ème spider:
 class SimplonCrawlSpider(CrawlSpider):
     """
+    ## SimplonCrawlSpider()
+
     A Scrapy spider that scrapes Simplon and France Compétences websites for formation details.
     """
     name = "simplonspider3"
@@ -160,6 +172,8 @@ class SimplonCrawlSpider(CrawlSpider):
 
     def parse_formation(self, response):
         """
+        ## parse_formation()
+
         Parses formation details from the response and makes additional requests for RNCP and RS details.
 
         Args:
@@ -193,6 +207,8 @@ class SimplonCrawlSpider(CrawlSpider):
 
     def rncp_parse_france_competences(self, response):
         """
+        ## rncp_parse_france_competences()
+
         Parses RNCP details from France Compétences and updates the item with additional information.
 
         Args:
@@ -229,6 +245,8 @@ class SimplonCrawlSpider(CrawlSpider):
 
     def rs_parse_france_competences(self, response):
         """
+        ## rs_parse_france_competences() 
+        
         Parses RS details from France Compétences and updates the item with additional information.
 
         Args:

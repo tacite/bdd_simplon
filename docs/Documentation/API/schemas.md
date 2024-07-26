@@ -1,5 +1,5 @@
 # Documentation of API module
-::: API.schemas
+::: api.schemas
     handler: python
     rendering:
       show_source: true

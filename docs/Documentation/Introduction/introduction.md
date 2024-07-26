@@ -10,6 +10,8 @@ The API allows querying the created database to find the sought training courses
 
 ## Code Structure
 
+**api**: api to request the SQL database.
+
 **azure_resources**: creates and deletes Azure resources.
 
 **azurefunction**: this folder contains the various parts of the automation of data retrieval from the France Compétences and Simplon websites.

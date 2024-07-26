@@ -1,5 +1,5 @@
 # Documentation of API module
-::: API.main
+::: api.main
     handler: python
     rendering:
       show_source: true

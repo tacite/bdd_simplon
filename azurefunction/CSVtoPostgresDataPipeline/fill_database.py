@@ -13,15 +13,25 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.parents import Formation, Certification, Formacode, Nsf, Referentiel
 from models.common_imports import Base
 
-# Récupérer les informations de connexion à la base de données depuis les variables d'environnement
+# Retrieve database connection information from environment variables
 username = "postgres"
 password = ""
 port = 5432
 database = "postgres"
 hostname = "localhost"
 
-# fonction qui cherche dans la base de donnée si l'objet obj existe selon les filtres mis en arguments variadiques dans le kwargs
 def exists(session: Session, obj: object, **kwargs) -> Optional['obj']:
+    """
+    Check if an object exists in the database based on given filters.
+
+    Parameters:
+    session (Session): The SQLAlchemy session to use for the query.
+    obj (object): The model class to query.
+    kwargs: Filter arguments for the query.
+
+    Returns:
+    obj or None: The found object or None if it does not exist.
+    """
     db_obj = session.scalar(select(obj).filter_by(**kwargs))
     if db_obj is not None:
         return db_obj
@@ -30,7 +40,16 @@ def exists(session: Session, obj: object, **kwargs) -> Optional['obj']:
 
 
 def fill_formacode(session: Session) -> None:
-    logging.info('fill_formacode début')
+    """
+    Fill the Formacode table from a CSV file.
+
+    Parameters:
+    session (Session): The SQLAlchemy session to use for database operations.
+
+    Returns:
+    None
+    """
+    logging.info('fill_formacode start')
     code_list = [str]    
     with open("data/V12_V13.xls", newline='', encoding='windows-1252') as file:
         toto = csv.reader(file, delimiter='\t')
@@ -41,21 +60,41 @@ def fill_formacode(session: Session) -> None:
                     session.add(formacode)
                     code_list.append(row[3])
         session.commit()
-    logging.info('fill_formacode fin')
+    logging.info('fill_formacode end')
 
         
 def fill_certification(row: OrderedDict, session: Session) -> Certification:
-    logging.info('fill_certification début')
+    """
+    Fill the Certification table based on the data from a CSV row.
+
+    Parameters:
+    row (OrderedDict): The data row from the CSV file.
+    session (Session): The SQLAlchemy session to use for database operations.
+
+    Returns:
+    Certification: The Certification object created or retrieved from the database.
+    """
+    logging.info('fill_certification start')
 
     certif = exists(session, Certification, code=row['code_certifinfo'])
     if not isinstance(certif, Certification):
         certif = Certification(code=row['code_certifinfo'], designation=row['intitule_certification'])
-    logging.info('fill_certification fin')
+    logging.info('fill_certification end')
 
     return certif
 
-def fill_nsf(row: OrderedDict, session: Session) -> Nsf:
-    logging.info('fill_nsf début')
+def fill_nsf(row: OrderedDict, session: Session) -> list[Nsf]:
+    """
+    Fill the NSF table based on the data from a CSV row.
+
+    Parameters:
+    row (OrderedDict): The data row from the CSV file.
+    session (Session): The SQLAlchemy session to use for database operations.
+
+    Returns:
+    list[Nsf]: A list of NSF objects created or retrieved from the database.
+    """
+    logging.info('fill_nsf start')
 
     nsfs: list[Nsf] = []
     for number in range(1, 4):
@@ -65,12 +104,22 @@ def fill_nsf(row: OrderedDict, session: Session) -> Nsf:
             if not isinstance(nsf, Nsf):
                 nsf = Nsf(code=row[f"code_nsf_{number}"], designation=row[f"libelle_nsf_{number}"])
             nsfs.append(nsf)
-    logging.info('fill_nsf fin')
+    logging.info('fill_nsf end')
 
     return nsfs
 
 def fill_formacodes(row: OrderedDict, session: Session) -> list[Formacode]:
-    logging.info('fill_formacodes début')
+    """
+    Fill the Formacode table based on the data from a CSV row.
+
+    Parameters:
+    row (OrderedDict): The data row from the CSV file.
+    session (Session): The SQLAlchemy session to use for database operations.
+
+    Returns:
+    list[Formacode]: A list of Formacode objects retrieved from the database.
+    """
+    logging.info('fill_formacodes start')
 
     formacodes: list[Formacode] = []
     for number in range(1, 6):
@@ -78,12 +127,22 @@ def fill_formacodes(row: OrderedDict, session: Session) -> list[Formacode]:
         if code:
             formacode = exists(session, Formacode, code=code)
             formacodes.append(formacode)
-    logging.info('fill_formacodes fin')
+    logging.info('fill_formacodes end')
 
     return formacodes
 
 def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
-    logging.info('fill_referentiel début')
+    """
+    Fill the Referentiel table based on the data from a CSV row.
+
+    Parameters:
+    row (OrderedDict): The data row from the CSV file.
+    session (Session): The SQLAlchemy session to use for database operations.
+
+    Returns:
+    Referentiel: The Referentiel object created or retrieved from the database.
+    """
+    logging.info('fill_referentiel start')
 
     type_referentiel = row['type_referentiel']
     codec = ""
@@ -100,15 +159,27 @@ def fill_referentiel(row: OrderedDict, session: Session) -> Referentiel:
         for formacode in formacodes:
             referentiel.formacode.append(formacode)
         session.add(referentiel)
-    logging.info('fill_referentiel fin')
+    logging.info('fill_referentiel end')
 
     return referentiel
 
 def fill_database() -> None:
-    logging.info('fill_database début')
+    """
+    Fill the database with data from a CSV file.
+
+    The function connects to the database, drops all existing tables, creates new tables,
+    and populates them with data from a CSV file.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+    logging.info('fill_database start')
 
     connection_string="postgresql+psycopg2://adminsadahe:SadaHe111@sadaheformationserver.postgres.database.azure.com:5432/sadaheformations"
-    #connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
+    # connection_string = f"postgresql+psycopg2://{username}:{password}@{hostname}:{port}/{database}"
     engine = create_engine(connection_string)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -141,8 +212,12 @@ def fill_database() -> None:
             
         session.commit()
         session.close()
-    logging.info('fill_database fin')
+    logging.info('fill_database end')
 
 
 if __name__ == "__main__":
+    """
+    Main entry point of the script. Calls the fill_database function to fill the
+    database with data from the CSV file.
+    """
     fill_database()

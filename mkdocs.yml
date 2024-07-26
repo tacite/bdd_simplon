@@ -13,9 +13,7 @@ nav:
               - Association of tables: Documentation/Automatisation/Models/association_table.md
           - Scraping:
               - Spiders: Documentation/Automatisation/Scraping/scrapy_spiders.md
-              - Database: Documentation/Automatisation/Scraping/scrapy_database.md
               - Items: Documentation/Automatisation/Scraping/scrapy_items.md
-              - Pipelines: Documentation/Automatisation/Scraping/scrapy_pipelines.md
       - API:
           - Code Structure: Documentation/API/code_structure.md
           - crud: Documentation/API/crud.md

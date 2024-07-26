@@ -1,5 +1,5 @@
 # Documentation of API module
-::: API.test
+::: api.test
     handler: python
     rendering:
       show_source: true

@@ -1,0 +1,37 @@
+site_name: "Database for Simplon"
+nav:
+  - Accueil: index.md
+  - Documentation:
+      - Introduction: Documentation/Introduction/introduction.md
+      - Automatisation:
+          - Code Structure: Documentation/Automatisation/code_structure.md
+          - CSV:
+              - Download file: Documentation/Automatisation/CSV/download_file.md
+              - Fill database: Documentation/Automatisation/CSV/fill_database.md
+          - Models:
+              - Tables: Documentation/Automatisation/Models/parents.md
+              - Association of tables: Documentation/Automatisation/Models/association_table.md
+          - Scraping:
+              - Spiders: Documentation/Automatisation/Scraping/scrapy_spiders.md
+              - Database: Documentation/Automatisation/Scraping/scrapy_database.md
+              - Items: Documentation/Automatisation/Scraping/scrapy_items.md
+              - Pipelines: Documentation/Automatisation/Scraping/scrapy_pipelines.md
+      - API:
+          - Code Structure: Documentation/API/code_structure.md
+          - crud: Documentation/API/crud.md
+          - main: Documentation/API/main.md
+          - schemas: Documentation/API/schemas.md
+          - test: Documentation/API/test.md
+
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            rendering:
+              show_source: true
